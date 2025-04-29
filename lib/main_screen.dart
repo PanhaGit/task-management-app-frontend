@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:frontend_app_task/constants/app_colors.dart';
 import 'package:frontend_app_task/constants/app_string.dart';
-import 'package:go_router/go_router.dart';
-
+import 'package:frontend_app_task/router/app_router.dart';
 class MainScreen extends StatefulWidget {
   final Widget child;
   final int selectedIndex;
@@ -35,19 +34,19 @@ class _MainScreenState extends State<MainScreen> {
 
     switch (index) {
       case 0:
-        context.go('/');
+        context.pushToHome();
         break;
       case 1:
-        context.go('/calendar');
+        context.pushToCalendar();
         break;
       case 2:
-        context.go('/add_task');
+        context.pushToAddTask();
         break;
       case 3:
-        context.go('/notification');
+        context.pushToNotification();
         break;
       case 4:
-        context.go('/profile');
+        context.pushToProfile();
         break;
     }
   }
