@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:frontend_app_task/router/app_router.dart';
 import 'package:go_router/go_router.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import '../constants/app_style.dart';
@@ -33,7 +34,7 @@ class _SplashScreenState extends State<SplashScreen> {
   Future<void> _timeSplashScreen()async {
     _timer = await Timer(const Duration(seconds: 3),(){
       if(mounted){
-       context.go('/');
+       context.pushToHome();
       }
     });
   }
