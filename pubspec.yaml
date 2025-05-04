@@ -19,6 +19,7 @@ dependencies:
   flutter_form_builder: ^10.0.1
   scroll_date_picker: ^3.8.0
   intl: ^0.20.2
+  firebase_core: ^3.13.0
 
 dev_dependencies:
   flutter_test:

@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "517094763462",
+    "project_id": "node-js-task-notification",
+    "storage_bucket": "node-js-task-notification.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:517094763462:android:ec5dcf98d906f8005760c7",
+        "android_client_info": {
+          "package_name": "com.example.frontend_app_task"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDdpXpF23iplT_Rz8SUuyBsLVtuCIXj7C0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
