@@ -1,4 +1,6 @@
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+          package="com.mongkol_task.application"
+>
     <application
         android:label="frontend_app_task"
         android:name="${applicationName}"
