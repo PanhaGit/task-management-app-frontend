@@ -47,7 +47,13 @@ class Routes {
             GoRoute(path: '/add_task', builder: (_, __) => const AddTaskScreen()),
           ]),
           StatefulShellBranch(routes: [
-            GoRoute(path: '/notification', builder: (_, __) => const NotificationScreen()),
+            GoRoute(
+              path: '/notification',
+              pageBuilder: (context, state) => MaterialPage(
+                key: state.pageKey,
+                child: const NotificationScreen(),
+              ),
+            ),
           ]),
           StatefulShellBranch(routes: [
             GoRoute(path: '/profile', builder: (_, __) => const ProfileScreen()),
