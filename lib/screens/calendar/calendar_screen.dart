@@ -35,7 +35,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
               radius: 16,
             ),
             onPressed: () {
-              _showProfile(context);
+              ;
             },
           ),
         ],
