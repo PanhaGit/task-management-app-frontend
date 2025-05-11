@@ -21,6 +21,8 @@ dependencies {
     // https://firebase.google.com/docs/android/setup#available-libraries
 }
 android {
+    compileSdk = flutter.compileSdkVersion
+    ndkVersion = "27.0.12077973"
     namespace = "com.mongkol_task.application"
 //    compileSdk = flutter.compileSdkVersion
     compileSdk = 35

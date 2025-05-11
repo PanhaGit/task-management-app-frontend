@@ -179,9 +179,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               ).buildButton(),
                             ),
                             Container(
-                              child: TextButton(onPressed: () {
-
-                              },
+                              child: TextButton(onPressed: () => context.goToForgetPassword(),
                                 child: Center(
                                   child: Text("Forgot password?", style: TextStyle(
                                     color: AppColors.charcoalGray,
