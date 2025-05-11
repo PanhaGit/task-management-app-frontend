@@ -15,8 +15,8 @@ import '../screens/home/home_screen.dart';
 
 class Routes {
   static final GoRouter router = GoRouter(
-    // initialLocation: '/get_start',
-    initialLocation: '/auth/login',
+    initialLocation: '/splash',
+    // initialLocation: '/auth/login',
     routes: [
       GoRoute(
         path: '/splash',
@@ -41,14 +41,20 @@ class Routes {
           StatefulShellBranch(routes: [
             GoRoute(path: '/', builder: (_, __) => const HomeScreen()),
           ]),
-          StatefulShellBranch(routes: [
+          StatefulShellBranch(routes: <RouteBase>[
             GoRoute(path: '/calendar', builder: (_, __) => const CalendarScreen()),
           ]),
           StatefulShellBranch(routes: [
             GoRoute(path: '/add_task', builder: (_, __) => const AddTaskScreen()),
           ]),
           StatefulShellBranch(routes: [
-            GoRoute(path: '/notification', builder: (_, __) => const NotificationScreen()),
+            GoRoute(
+              path: '/notification',
+              pageBuilder: (context, state) => MaterialPage(
+                key: state.pageKey,
+                child: const NotificationScreen(),
+              ),
+            ),
           ]),
           StatefulShellBranch(routes: [
             GoRoute(path: '/profile', builder: (_, __) => const ProfileScreen()),
