@@ -11,6 +11,7 @@ extension AppRouter on BuildContext {
 
   void goToLogin () => go("auth/login");
   void goToSignup() => go('/auth/signup');
+  void goToForgetPassword() => go('/auth/forget_password');
 
 
   // Initial screens with Go
@@ -41,6 +42,7 @@ extension AppRouter on BuildContext {
   void pushToLogin () => push("/auth/login");
   void pushToSignup() => push('/auth/signup');
   void pushToDOB() => push('/auth/dob');
+  void pushToForgetPass() => push('/auth/forget_password');
 
   // Initial screens with push
   void pushToGetStart() => push('/get_start');
