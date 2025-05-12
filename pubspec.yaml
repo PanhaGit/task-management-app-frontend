@@ -23,10 +23,12 @@ dependencies:
   firebase_messaging: ^15.2.5
   flutter_local_notifications: ^19.1.0
   app_settings: ^6.1.1
-  get: ^4.7.
+  get: ^4.7.0
   timeago: ^3.2.2
   line_awesome_flutter: ^3.0.1
   flutter_screenutil: ^5.9.3
+  date_picker_plus: ^4.2.0
+  table_calendar: ^3.2.0
 
 dev_dependencies:
   flutter_test:

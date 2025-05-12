@@ -39,7 +39,7 @@ class Routes {
         },
         branches: [
           StatefulShellBranch(routes: [
-            GoRoute(path: '/', builder: (_, __) => const HomeScreen()),
+            GoRoute(path: '/', builder: (_, __) =>  HomeScreen()),
           ]),
           StatefulShellBranch(routes: <RouteBase>[
             GoRoute(path: '/calendar', builder: (_, __) => const CalendarScreen()),
