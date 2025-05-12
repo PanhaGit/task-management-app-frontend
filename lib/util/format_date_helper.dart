@@ -15,6 +15,12 @@ class FormatDateHelper {
     return formatter.format(date);
   }
 
+
+  // April 2025
+  Future<String> dateFormMonthAndYear(DateTime date) async {
+    final DateFormat formatter = DateFormat("MMMM y");
+    return formatter.format(date);
+  }
   // Future<String> dateFormatTime(DateTime time) async{
   //   final DateFormat formatter = DateFormat('');
   //   return formatter.format(time);

@@ -14,11 +14,16 @@ extension AppRouter on BuildContext {
   void goToForgetPassword() => go('/auth/forget_password');
 
 
+
+
   // Initial screens with Go
   void goToSplash() => go('/splash');
   void goToGetStart() => go('/get_start');
   void goToHome() => go('/');
-
+  void goToCalendar() => go('/calendar');
+  void goToAddTask() => go('/add_task');
+  void goToNotification() => go('/notification');
+  void goToProfile() => go('/profile');
   // ************************** Use for Push **************************
 
   /**

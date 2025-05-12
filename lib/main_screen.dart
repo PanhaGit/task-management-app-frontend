@@ -34,19 +34,19 @@ class _MainScreenState extends State<MainScreen> {
 
     switch (index) {
       case 0:
-        context.pushToHome();
+        context.goToHome();
         break;
       case 1:
-        context.pushToCalendar();
+        context.goToCalendar();
         break;
       case 2:
-        context.pushToAddTask();
+        context.goToAddTask();
         break;
       case 3:
-        context.pushToNotification();
+        context.goToNotification();
         break;
       case 4:
-        context.pushToProfile();
+        context.goToProfile();
         break;
     }
   }

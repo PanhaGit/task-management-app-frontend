@@ -14,6 +14,7 @@ class NotificationScreen extends StatefulWidget {
 
 class _NotificationScreenState extends State<NotificationScreen> {
   NotificationServices _notificationServices = NotificationServices();
+  final NotificationController _notificationController = Get.find();
 
   final List<Map<String, String>> notifications = [
     {'name': 'Patrick Hill', 'description': 'Onboarding Screen UI Design', 'initials': 'PH'},
@@ -27,8 +28,6 @@ class _NotificationScreenState extends State<NotificationScreen> {
     {'name': 'Kelly Williamson', 'description': 'Onboarding Screen UI Design', 'initials': 'KW'},
   ];
 
-  final NotificationServices _notificationServices = NotificationServices();
-  final NotificationController _notificationController = Get.find();
 
 
   @override
@@ -67,6 +66,18 @@ class _NotificationScreenState extends State<NotificationScreen> {
         title: const Text("Notifications"),
         centerTitle: true,
         elevation: 0,
+        actions: [
+          Obx(() => Badge(
+            isLabelVisible: _notificationController.unreadCount > 0,
+            label: Text(_notificationController.unreadCount.toString()),
+            child: IconButton(
+              icon: const Icon(Icons.notifications),
+              onPressed: () {
+                _notificationController.markAsRead();
+              },
+            ),
+          )),
+        ],
       ),
       body: ListView.separated(
         itemCount: notifications.length,
@@ -128,18 +139,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
           );
         },
 
-        actions: [
-          Obx(() => Badge(
-            isLabelVisible: _notificationController.unreadCount > 0,
-            label: Text(_notificationController.unreadCount.toString()),
-            child: IconButton(
-              icon: const Icon(Icons.notifications),
-              onPressed: () {
-                _notificationController.markAsRead();
-              },
-            ),
-          )),
-        ],
+
 
       ),
     );

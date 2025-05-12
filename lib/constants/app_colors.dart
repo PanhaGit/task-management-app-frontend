@@ -11,4 +11,13 @@ class AppColors {
 
   // backgroud granden
   static const Color lightBlue = Color(0xFFE8F9FF);
+
+  // color use Calendar Active date
+  static const Color teal = Color(0xFF3D8D7A);
+
+  // color use Calender UnActive
+  static const Color lightTeal= Color(0xFF90D1CA);
+
+  // color use Click Calender
+  static const Color pink = Color(0xFFFF90BB);
 }
