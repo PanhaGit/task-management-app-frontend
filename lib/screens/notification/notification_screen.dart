@@ -13,8 +13,23 @@ class NotificationScreen extends StatefulWidget {
 }
 
 class _NotificationScreenState extends State<NotificationScreen> {
+  NotificationServices _notificationServices = NotificationServices();
+
+  final List<Map<String, String>> notifications = [
+    {'name': 'Patrick Hill', 'description': 'Onboarding Screen UI Design', 'initials': 'PH'},
+    {'name': 'Kyle Powell', 'description': 'Onboarding Screen UI Design', 'initials': 'KP'},
+    {'name': 'Danielle Baker', 'description': 'Onboarding Screen UI Design', 'initials': 'DB'},
+    {'name': 'Christine Brewer', 'description': 'Dashboard Screen UI Design', 'initials': 'CB'},
+    {'name': 'Jose McCoy', 'description': 'Dashboard Screen UI Design', 'initials': 'JM'},
+    {'name': 'Kyle Wagner', 'description': 'Food App UI Design', 'initials': 'KW'},
+    {'name': 'Tyler Fox', 'description': 'Food App UI Design', 'initials': 'TF'},
+    {'name': 'Natasha Lucas', 'description': 'Signup Screen UI Design', 'initials': 'NL'},
+    {'name': 'Kelly Williamson', 'description': 'Onboarding Screen UI Design', 'initials': 'KW'},
+  ];
+
   final NotificationServices _notificationServices = NotificationServices();
   final NotificationController _notificationController = Get.find();
+
 
   @override
   void initState() {
@@ -31,12 +46,88 @@ class _NotificationScreenState extends State<NotificationScreen> {
     debugPrint("🔐 Token: $token");
   }
 
+  // Function to generate random color for avatar background
+  Color _getAvatarColor(String initials) {
+    final colors = [
+      Colors.blue.shade400,
+      Colors.red.shade400,
+      Colors.green.shade400,
+      Colors.purple.shade400,
+      Colors.orange.shade400,
+      Colors.teal.shade400,
+    ];
+    return colors[initials.hashCode % colors.length];
+  }
+
   @override
   Widget build(BuildContext context) {
     debugPrint("Building NotificationScreen with ${_notificationController.notifications.length} notifications");
     return Scaffold(
       appBar: AppBar(
         title: const Text("Notifications"),
+        centerTitle: true,
+        elevation: 0,
+      ),
+      body: ListView.separated(
+        itemCount: notifications.length,
+        separatorBuilder: (context, index) => Divider(height: 1, color: Colors.grey.shade200),
+        itemBuilder: (context, index) {
+          final notification = notifications[index];
+          return Padding(
+            padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+            child: Row(
+              children: [
+                // Profile avatar circle
+                Container(
+                  width: 48,
+                  height: 48,
+                  decoration: BoxDecoration(
+                    color: _getAvatarColor(notification['initials']!),
+                    shape: BoxShape.circle,
+                  ),
+                  child: Center(
+                    child: Text(
+                      notification['initials']!,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 16),
+                // Notification content
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        notification['name']!,
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.black87,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        notification['description']!,
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                          color: Colors.grey.shade600,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                // Time/status indicator could be added here
+              ],
+            ),
+          );
+        },
+
         actions: [
           Obx(() => Badge(
             isLabelVisible: _notificationController.unreadCount > 0,
@@ -49,54 +140,8 @@ class _NotificationScreenState extends State<NotificationScreen> {
             ),
           )),
         ],
+
       ),
-      body: Obx(() {
-        if (_notificationController.notifications.isEmpty) {
-          return const Center(
-            child: Text("No notifications yet"),
-          );
-        }
-
-        return RefreshIndicator(
-          onRefresh: () async {
-            // Implement refresh logic if needed
-          },
-          child: ListView.builder(
-            itemCount: _notificationController.notifications.length,
-            itemBuilder: (context, index) {
-              final notification = _notificationController.notifications[index];
-              final time = notification.sentTime ?? DateTime.now();
-
-              return Card(
-                margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                child: ListTile(
-                  leading: const Icon(Icons.notifications_active),
-                  title: Text(
-                    notification.notification?.title ?? 'No Title',
-                    style: Theme.of(context).textTheme.titleMedium,
-                  ),
-                  subtitle: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(notification.notification?.body ?? 'No Body'),
-                      const SizedBox(height: 4),
-                      Text(
-                        timeago.format(time),
-                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: Colors.grey,
-                        ),
-                      ),
-                    ],
-                  ),
-                  onTap: () {
-                    // Handle notification tap
-                  },
-                ),
-              );
-            },
-          ),
-        );
-      }),
     );
   }
 }
