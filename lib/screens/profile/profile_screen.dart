@@ -1,333 +1,324 @@
 import 'package:flutter/material.dart';
-
-class ProfileScreen extends StatefulWidget {
+import 'package:frontend_app_task/background_gradient.dart';
+import 'package:frontend_app_task/constants/app_colors.dart';
+import 'package:frontend_app_task/router/app_router.dart';
+import 'package:frontend_app_task/wiegtes/custome_button_wiegte.dart';
+class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
-
-  @override
-  State<ProfileScreen> createState() => _ProfileScreenState();
-}
-
-class _ProfileScreenState extends State<ProfileScreen> {
-  String name = "Tho Panha";
-  String userId = "ID: 524687975";
-  String location = "Phnom Penh, Cambodia";
-  List<String> skills = ["Web", "Mobile", "UI/UX"];
-  int followers = 1300;
-  int views = 453000;
-  int reviews = 453000;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey[100],
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            // Profile Header Section
-            Container(
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [
-                    Color(0xFF4A6CF7),
-                    Color(0xFF3A5BEE),
-                  ],
-                ),
-                borderRadius: BorderRadius.only(
-                  bottomLeft: Radius.circular(30),
-                  bottomRight: Radius.circular(30),
-                ),
+      appBar: AppBar(
+        backgroundColor: AppColors.white,
+        title: const Text("Profile"),
+        centerTitle: true,
+        elevation: 0,
+      ),
+      body: LayoutBuilder(
+        builder: (context, constraints) {
+          return BackgroundGradient(
+            child: ConstrainedBox(
+              constraints: BoxConstraints(
+                minHeight: constraints.maxHeight,
               ),
-              padding: EdgeInsets.symmetric(horizontal: 20, vertical: 40),
-              child: Column(
-                children: [
-                  // App Bar
-                  Row(
+              child: IntrinsicHeight(
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
                     children: [
-                      IconButton(
-                        icon: Icon(Icons.arrow_back_ios, color: Colors.white),
-                        onPressed: () => Navigator.pop(context),
-                      ),
-                      SizedBox(width: 10),
-                      Text(
-                        "Profile",
-                        style: TextStyle(
-                          fontSize: 20,
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      Spacer(),
-                      ElevatedButton(
-                        onPressed: () => _showEditProfileDialog(context),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.white.withOpacity(0.3),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(20),
+                      // Cover and Profile Image Section
+                      Stack(
+                        alignment: Alignment.bottomCenter,
+                        clipBehavior: Clip.none,
+                        children: [
+                          // Cover Image
+                          Container(
+                            height: 150,
+                            width: double.infinity,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(12),
+                              color: Colors.grey[300],
+                              image: const DecorationImage(
+                                image: NetworkImage('https://example.com/cover-image.jpg'),
+                                fit: BoxFit.cover,
+                              ),
+                            ),
+                            child: Align(
+                              alignment: Alignment.topRight,
+                              child: IconButton(
+                                icon: const Icon(Icons.camera_alt, color: Colors.white),
+                                onPressed: () => _changeCoverImage(context),
+                              ),
+                            ),
                           ),
-                          padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+
+                          // Profile Image
+                          Positioned(
+                            bottom: -50,
+                            child: GestureDetector(
+                              onTap: () => _changeProfileImage(context),
+                              child: Container(
+                                width: 100,
+                                height: 100,
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  border: Border.all(color: Colors.white, width: 4),
+                                  color: Colors.grey[200],
+                                  image: const DecorationImage(
+                                    image: NetworkImage('https://example.com/profile-image.jpg'),
+                                    fit: BoxFit.cover,
+                                  ),
+                                ),
+                                child: const Align(
+                                  alignment: Alignment.bottomRight,
+                                  child: CircleAvatar(
+                                    radius: 14,
+                                    backgroundColor: Colors.blue,
+                                    child: Icon(Icons.camera_alt, size: 16, color: Colors.white),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+
+                      const SizedBox(height: 60), // Space for profile image overlap
+
+                      // User Information Section
+                      Card(
+                        elevation: 4,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
                         ),
-                        child: Text(
-                          "Edit Profile",
-                          style: TextStyle(color: Colors.white),
+                        child: Padding(
+                          padding: const EdgeInsets.all(16.0),
+                          child: Column(
+                            children: [
+                              _buildProfileField(
+                                context,
+                                label: 'Username',
+                                value: 'JohnDoe',
+                                icon: Icons.person,
+                              ),
+                              const Divider(height: 20),
+                              _buildProfileField(
+                                context,
+                                label: 'Email',
+                                value: 'john.doe@example.com',
+                                icon: Icons.email,
+                              ),
+                              const Divider(height: 20),
+                              _buildProfileField(
+                                context,
+                                label: 'Phone Number',
+                                value: '+1 (555) 123-4567',
+                                icon: Icons.phone,
+                              ),
+                            ],
+                          ),
                         ),
                       ),
+
+                      const SizedBox(height: 20),
+
+                      // Change Password Button
+                      SizedBox(
+                        width: double.infinity,
+                        height: 50,
+                        child: CustomButtonWidget(
+                          backgroundColor: AppColors.brightSkyBlue,
+                          textColor: AppColors.white,
+                          buttonText: "Change Password",  // Changed from Text widget to String
+                          onPressed: () {
+                            context.pushToForgetPass();
+                          },
+                        ).buildButton(),
+                      ),
+
+                      // Add an empty SizedBox at the bottom to ensure content stays centered
+                      // when there's extra space
+                      SizedBox(height: MediaQuery.of(context).padding.bottom),
                     ],
                   ),
-                  SizedBox(height: 20),
-                  // Profile Picture
-                  Stack(
-                    alignment: Alignment.bottomRight,
-                    children: [
-                      CircleAvatar(
-                        radius: 50,
-                        backgroundImage: AssetImage('assets/images/photopanha.jpg'),
-                      ),
-                      Container(
-                        padding: EdgeInsets.all(6),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          shape: BoxShape.circle,
-                        ),
-                        child: Icon(Icons.camera_alt, size: 20, color: Colors.blue),
-                      ),
-                    ],
-                  ),
-                  SizedBox(height: 15),
-                  // Name and ID
-                  Text(
-                    name,
-                    style: TextStyle(
-                      fontSize: 22,
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  SizedBox(height: 5),
-                  Text(
-                    userId,
-                    style: TextStyle(color: Colors.white70),
-                  ),
-                  SizedBox(height: 10),
-                  // Location
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(Icons.location_on, size: 16, color: Colors.white70),
-                      SizedBox(width: 5),
-                      Text(
-                        location,
-                        style: TextStyle(color: Colors.white70),
-                      ),
-                    ],
-                  ),
-                  SizedBox(height: 20),
-                  // Skills Chips
-                  Wrap(
-                    spacing: 8,
-                    runSpacing: 8,
-                    children: skills.map((skill) => Chip(
-                      label: Text(skill),
-                      backgroundColor: Colors.white.withOpacity(0.2),
-                      labelStyle: TextStyle(color: Colors.white),
-                    )).toList(),
-                  ),
-                ],
+                ),
               ),
             ),
-            // Stats Section
-            Container(
-              margin: EdgeInsets.symmetric(vertical: 20, horizontal: 20),
-              padding: EdgeInsets.symmetric(vertical: 15),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(15),
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  _buildStatItem("Followers", followers),
-                  _buildStatItem("Views", views),
-                  _buildStatItem("Reviews", reviews),
-                ],
-              ),
-            ),
-            // Options List
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 20),
-              child: Column(
-                children: [
-                  _buildOption(
-                    icon: Icons.lock_outline,
-                    text: "Password",
-                    onTap: () => _showComingSoon(context),
-                  ),
-                  _buildOption(
-                    icon: Icons.email_outlined,
-                    text: "Email Address",
-                    onTap: () => _showComingSoon(context),
-                  ),
-                  _buildOption(
-                    icon: Icons.fingerprint,
-                    text: "Fingerprint",
-                    onTap: () => _showComingSoon(context),
-                  ),
-                  _buildOption(
-                    icon: Icons.support_agent,
-                    text: "Support",
-                    onTap: () => _showComingSoon(context),
-                  ),
-                  _buildOption(
-                    icon: Icons.logout,
-                    text: "Sign Out",
-                    color: Colors.red,
-                    onTap: () => _showLogoutDialog(context),
-                  ),
-                ],
-              ),
-            ),
-            SizedBox(height: 20),
-          ],
-        ),
+          );
+        },
       ),
     );
   }
 
-  Widget _buildStatItem(String label, int value) {
-    String formattedValue = value >= 1000 
-      ? "${(value / 1000).toStringAsFixed(1)}k" 
-      : value.toString();
-      
-    return Column(
+  // Rest of your helper methods remain the same...
+  Widget _buildProfileField(BuildContext context, {
+    required String label,
+    required String value,
+    required IconData icon,
+  }) {
+    return Row(
       children: [
-        Text(
-          formattedValue,
-          style: TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-            color: Color(0xFF4A6CF7),
+        Icon(icon, color: Colors.blue),
+        const SizedBox(width: 16),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                label,
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  color: Colors.grey,
+                ),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                value,
+                style: Theme.of(context).textTheme.bodyLarge,
+              ),
+            ],
           ),
         ),
-        SizedBox(height: 5),
-        Text(
-          label,
-          style: TextStyle(
-            fontSize: 14,
-            color: Colors.grey[600],
-          ),
+        IconButton(
+          icon: const Icon(Icons.edit, size: 20),
+          onPressed: () => _editField(context, label, value),
         ),
       ],
     );
   }
 
-  Widget _buildOption({
-    required IconData icon,
-    required String text,
-    Color color = Colors.blueAccent,
-    required VoidCallback onTap,
-  }) {
-    return Card(
-      margin: EdgeInsets.only(bottom: 10),
-      elevation: 1,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: InkWell(
-        borderRadius: BorderRadius.circular(12),
-        onTap: onTap,
-        child: Padding(
-          padding: EdgeInsets.symmetric(horizontal: 15, vertical: 18),
-          child: Row(
-            children: [
-              Icon(icon, color: color),
-              SizedBox(width: 20),
-              Expanded(
-                child: Text(
-                  text,
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              ),
-              Icon(Icons.arrow_forward_ios, size: 16, color: Colors.grey),
-            ],
+  void _changeProfileImage(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      builder: (context) => _buildImagePickerOptions(context, 'Profile'),
+    );
+  }
+
+  void _changeCoverImage(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      builder: (context) => _buildImagePickerOptions(context, 'Cover'),
+    );
+  }
+
+  Widget _buildImagePickerOptions(BuildContext context, String type) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            'Change $type Image',
+            style: Theme.of(context).textTheme.titleMedium,
           ),
-        ),
+          const SizedBox(height: 16),
+          ListTile(
+            leading: const Icon(Icons.camera),
+            title: const Text('Take Photo'),
+            onTap: () {
+              Navigator.pop(context);
+              // Implement camera functionality
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.photo_library),
+            title: const Text('Choose from Gallery'),
+            onTap: () {
+              Navigator.pop(context);
+              // Implement gallery picker functionality
+            },
+          ),
+          if (type == 'Profile') ListTile(
+            leading: const Icon(Icons.delete, color: Colors.red),
+            title: const Text('Remove Photo', style: TextStyle(color: Colors.red)),
+            onTap: () {
+              Navigator.pop(context);
+              // Implement remove photo functionality
+            },
+          ),
+        ],
       ),
     );
   }
 
-  void _showEditProfileDialog(BuildContext context) {
-    TextEditingController nameController = TextEditingController(text: name);
-    TextEditingController locationController = TextEditingController(text: location);
+  void _editField(BuildContext context, String field, String currentValue) {
+    TextEditingController controller = TextEditingController(text: currentValue);
 
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text("Edit Profile"),
+        title: Text('Edit $field'),
+        content: TextField(
+          controller: controller,
+          decoration: InputDecoration(
+            labelText: 'New $field',
+            border: const OutlineInputBorder(),
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              // Implement save logic
+              Navigator.pop(context);
+            },
+            child: const Text('Save'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _changePassword(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Change Password'),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             TextField(
-              controller: nameController,
-              decoration: InputDecoration(labelText: "Name"),
+              obscureText: true,
+              decoration: const InputDecoration(
+                labelText: 'Current Password',
+                border: OutlineInputBorder(),
+              ),
             ),
-            SizedBox(height: 10),
+            const SizedBox(height: 16),
             TextField(
-              controller: locationController,
-              decoration: InputDecoration(labelText: "Location"),
+              obscureText: true,
+              decoration: const InputDecoration(
+                labelText: 'New Password',
+                border: OutlineInputBorder(),
+              ),
+            ),
+            const SizedBox(height: 16),
+            TextField(
+              obscureText: true,
+              decoration: const InputDecoration(
+                labelText: 'Confirm New Password',
+                border: OutlineInputBorder(),
+              ),
             ),
           ],
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: Text("Cancel"),
+            child: const Text('Cancel'),
           ),
           ElevatedButton(
             onPressed: () {
-              setState(() {
-                name = nameController.text;
-                location = locationController.text;
-              });
+              // Implement password change logic
               Navigator.pop(context);
             },
-            child: Text("Save"),
+            child: const Text('Update Password'),
           ),
         ],
       ),
-    );
-  }
-
-  void _showLogoutDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text("Sign Out"),
-        content: Text("Are you sure you want to sign out?"),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text("Cancel"),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              // Add your logout logic here
-              Navigator.pop(context);
-            },
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-            child: Text("Sign Out"),
-          ),
-        ],
-      ),
-    );
-  }
-
-  void _showComingSoon(BuildContext context) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text("This feature is coming soon!")),
     );
   }
 }

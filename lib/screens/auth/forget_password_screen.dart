@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:frontend_app_task/constants/app_colors.dart';
 import 'package:frontend_app_task/router/app_router.dart';
+import 'package:go_router/go_router.dart';
 
 class ForgetPasswordScreen extends StatefulWidget {
   const ForgetPasswordScreen({super.key});
@@ -18,14 +19,14 @@ class _ForgetPasswordScreenState extends State<ForgetPasswordScreen> {
     return Scaffold(
       body: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 24.0),
+          padding: const EdgeInsets.symmetric(horizontal: 16.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // Back Button
               IconButton(
                 icon: const Icon(Icons.arrow_back),
-                onPressed: () => context.pushToLogin(),
+                onPressed: () => context.pop()
               ),
               const SizedBox(height: 20),
 

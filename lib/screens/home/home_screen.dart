@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:frontend_app_task/background_gradient.dart';
 import 'package:frontend_app_task/constants/app_colors.dart';
 import 'package:frontend_app_task/controllers/homeController.dart';
 import 'package:get/get.dart';
@@ -11,7 +12,7 @@ class HomeScreen extends StatelessWidget {
   HomeScreen({super.key});
 
   @override
-  Widget build(BuildContext   context) {
+  Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -48,12 +49,25 @@ class HomeScreen extends StatelessWidget {
           onTap: controller.changeCalendarFormat,
         ),
       ),
-      body: TabBarView(
-        controller: controller.tabController,
-        children: [
-          _buildCalendarView(),
-          _buildCalendarView(),
-        ],
+      body: LayoutBuilder(
+        builder: (context, constraints) {
+          return BackgroundGradient(
+            child: ConstrainedBox(
+              constraints: BoxConstraints(
+                minHeight: constraints.maxHeight,
+              ),
+              child: IntrinsicHeight(
+                child: TabBarView(
+                  controller: controller.tabController,
+                  children: [
+                    _buildCalendarView(),
+                    _buildCalendarView(),
+                  ],
+                ),
+              ),
+            ),
+          );
+        },
       ),
     );
   }
