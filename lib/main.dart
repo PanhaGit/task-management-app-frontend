@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:frontend_app_task/constants/app_colors.dart';
 import 'package:frontend_app_task/router/routes.dart'; // Assuming you define GoRouter here
 import 'package:frontend_app_task/services/firebase_notification/notification_services.dart';
 import 'package:get/get.dart';
@@ -26,6 +27,9 @@ class MongKolApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp.router(
       debugShowCheckedModeBanner: false,
+      theme: ThemeData(
+        scaffoldBackgroundColor: AppColors.white,
+      ),
       title: "Mong Kol App Task",
       routerConfig: Routes.router, // This should be your GoRouter instance
     );
