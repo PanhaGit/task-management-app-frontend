@@ -1,16 +1,23 @@
 import 'dart:math';
-
 import 'package:app_settings/app_settings.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:frontend_app_task/router/app_router.dart';
+import 'package:get/get.dart';
+import 'package:frontend_app_task/controllers/notification_controller.dart';
+import 'package:go_router/go_router.dart';
 
 class NotificationServices {
   final FirebaseMessaging _messaging = FirebaseMessaging.instance;
-  final FlutterLocalNotificationsPlugin _flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
+  final FlutterLocalNotificationsPlugin _flutterLocalNotificationsPlugin =
+  FlutterLocalNotificationsPlugin();
+  final NotificationController _notificationController = Get.find();
 
-  void initLocalNotifications(BuildContext context, RemoteMessage message) async{
-    var androidInitializationSettings = AndroidInitializationSettings("@mipmap/ic_launcher");
+
+  // Initialize local notifications
+  void initLocalNotifications(BuildContext context) async {
+    var androidInitializationSettings = const AndroidInitializationSettings('@mipmap/mongkol_logo');
     var iosInitializationSettings = const DarwinInitializationSettings();
 
     var initializationSettings = InitializationSettings(
@@ -19,37 +26,60 @@ class NotificationServices {
     );
 
     await _flutterLocalNotificationsPlugin.initialize(
-        initializationSettings,
-      onDidReceiveBackgroundNotificationResponse: (payload){
-
-      }
+      initializationSettings,
+      onDidReceiveNotificationResponse: (payload) {
+        _notificationController.markAsRead();
+        context.pushToNotification();
+      },
     );
   }
 
-  void firebaseInit(){
-    FirebaseMessaging.onMessage.listen((messages){
-      print("Title "+ messages.notification!.title.toString());
-      print("Title "+ messages.notification!.body.toString());
-      showNotification(messages);
+  // Firebase initialization and message handling
+  void firebaseInit(BuildContext context) {
+    FirebaseMessaging.onMessage.listen((message) {
+      if (message.notification != null) {
+        debugPrint("Title: ${message.notification?.title}");
+        debugPrint("Body: ${message.notification?.body}");
+
+        _notificationController.addNotification(message);
+        showNotification(message);
+      }
+    });
+
+    FirebaseMessaging.onMessageOpenedApp.listen((message) {
+      _notificationController.addNotification(message);
+      _notificationController.markAsRead();
+      final router = GoRouter.of(context);
+      router.push('/notification');
+      // Use GoRouter for navigation
+      // final router = GoRouter.of(context);
+      // router.push('/notification');
     });
   }
 
-  Future<void> showNotification(RemoteMessage message)async {
+  // Show notification
+  Future<void> showNotification(RemoteMessage message) async {
 
-    AndroidNotificationChannel channel = AndroidNotificationChannel(
-      Random.secure().nextInt(100000).toString(),
-      importance: Importance.max,
-      "Hello Mongko Task Application , channel",
-    ) ;
+    const AndroidNotificationChannel channel = AndroidNotificationChannel(
+      'high_importance_channel',
+      'High Importance Notifications',
+      description: 'This channel is used for important notifications.',
+      importance: Importance.high,
+      playSound: true,
+
+    );
+
+    await _flutterLocalNotificationsPlugin
+        .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>()
+        ?.createNotificationChannel(channel);
 
     AndroidNotificationDetails androidNotificationDetails = AndroidNotificationDetails(
-      // Random.secure().nextInt(100000).toString(),
-      channel.id.toString(),
-      channel.name.toString(),
-      channelDescription:'Your channel description',
+      channel.id,
+      channel.name,
+      channelDescription: 'Your channel description',
       priority: Priority.high,
       ticker: 'ticker',
-      icon: '@mipmap/ic_launcher',
+      icon: '@mipmap/mongkol_logo',
     );
 
     const DarwinNotificationDetails darwinNotificationDetails = DarwinNotificationDetails(
@@ -63,16 +93,16 @@ class NotificationServices {
       iOS: darwinNotificationDetails,
     );
 
-    Future.delayed(Duration.zero,(){
-      _flutterLocalNotificationsPlugin.show(
-          0,
-          message.notification!.title.toString(),
-          message.notification!.body.toString(),
-          notificationDetails
-      );
-    });
+    await _flutterLocalNotificationsPlugin.show(
+      Random().nextInt(1000),
+      message.notification?.title ?? 'No Title',
+      message.notification?.body ?? 'No Body',
+      notificationDetails,
+      payload: message.data.toString(),
+    );
   }
 
+  // Request notification permissions
   void requestNotificationPermission() async {
     NotificationSettings settings = await _messaging.requestPermission(
       alert: true,
@@ -85,26 +115,25 @@ class NotificationServices {
     );
 
     if (settings.authorizationStatus == AuthorizationStatus.authorized) {
-      print("✅ User granted permission");
+      debugPrint("✅ User granted permission");
     } else if (settings.authorizationStatus == AuthorizationStatus.provisional) {
-      print("🟡 User granted provisional permission");
+      debugPrint("🟡 User granted provisional permission");
     } else {
-      print("❌ User denied permission – redirecting to settings");
+      debugPrint("❌ User denied permission – redirecting to settings");
       AppSettings.openAppSettings();
     }
   }
 
-  Future<String?> getDeviceToken() async{
+  // Get device token
+  Future<String?> getDeviceToken() async {
     String? getToken = await _messaging.getToken();
-
-    return getToken!;
+    return getToken;
   }
 
-  Future<void> isTokenRefresh() async{
-     _messaging.onTokenRefresh.listen((event){
-      event.toString();
+  // Handle token refresh
+  Future<void> isTokenRefresh() async {
+    _messaging.onTokenRefresh.listen((event) {
+      debugPrint("Token refreshed: $event");
     });
-
   }
-
 }

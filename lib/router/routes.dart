@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:frontend_app_task/main_screen.dart';
 import 'package:frontend_app_task/screens/add_task/add_task_screen.dart';
 import 'package:frontend_app_task/screens/auth/date_of_brithday_screen.dart';
+import 'package:frontend_app_task/screens/auth/forget_password_screen.dart';
 import 'package:frontend_app_task/screens/auth/login_screen.dart';
 import 'package:frontend_app_task/screens/auth/signup_screen.dart';
 import 'package:frontend_app_task/screens/calendar/calendar_screen.dart';
@@ -47,7 +48,13 @@ class Routes {
             GoRoute(path: '/add_task', builder: (_, __) => const AddTaskScreen()),
           ]),
           StatefulShellBranch(routes: [
-            GoRoute(path: '/notification', builder: (_, __) => const NotificationScreen()),
+            GoRoute(
+              path: '/notification',
+              pageBuilder: (context, state) => MaterialPage(
+                key: state.pageKey,
+                child: const NotificationScreen(),
+              ),
+            ),
           ]),
           StatefulShellBranch(routes: [
             GoRoute(path: '/profile', builder: (_, __) => const ProfileScreen()),
@@ -102,8 +109,12 @@ class Routes {
           child: DateOfBrithdayScreen(),
         ),
       ),
-
-
+      GoRoute(path: "/auth/forget_password",
+      pageBuilder:  (context, state) => MaterialPage(
+      key: state.pageKey,
+        child: ForgetPasswordScreen(),
+      ),
+      )
     ],
     errorPageBuilder: (BuildContext context, GoRouterState state) => MaterialPage(
       key: state.pageKey,
