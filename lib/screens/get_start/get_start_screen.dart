@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:frontend_app_task/constants/app_style.dart';
-import 'package:frontend_app_task/env.dart';
 import 'package:frontend_app_task/router/app_router.dart';
+import 'package:frontend_app_task/util/env.dart';
 import 'package:frontend_app_task/wiegtes/custome_button_wiegte.dart';
 import '../../constants/app_colors.dart';
 class GetStartScreen extends StatelessWidget {

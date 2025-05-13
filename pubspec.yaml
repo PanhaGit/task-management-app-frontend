@@ -29,6 +29,7 @@ dependencies:
   flutter_screenutil: ^5.9.3
   date_picker_plus: ^4.2.0
   table_calendar: ^3.2.0
+  dio: ^5.8.0+1
 
 dev_dependencies:
   flutter_test:
