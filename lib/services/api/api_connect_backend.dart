@@ -77,14 +77,17 @@ class ApiConnectBackend {
     required String endpoint,
     Map<String, dynamic>? queryParameters,
     Map<String, String>? headers,
+    dynamic data,
   }) async {
     return request<T>(
       method: method,
       endpoint: endpoint,
       queryParameters: queryParameters,
       headers: headers,
+      data: data,
     );
   }
+
 }
 
 class ApiException implements Exception {
