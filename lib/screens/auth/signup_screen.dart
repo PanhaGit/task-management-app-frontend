@@ -15,9 +15,9 @@ class SignupScreen extends StatefulWidget {
 }
 
 class _SignupScreenState extends State<SignupScreen> {
-  final IsDeviceHelper _isDeviceHelper = IsDeviceHelper();
-  final _formkey = GlobalKey<FormBuilderState>();
+  final _formKey = GlobalKey<FormBuilderState>();
   bool _isPasswordVisible = false;
+  final IsDeviceHelper _isDeviceHelper = IsDeviceHelper();
 
   @override
   Widget build(BuildContext context) {
@@ -36,9 +36,7 @@ class _SignupScreenState extends State<SignupScreen> {
             child: _isDeviceHelper.isDevicesIosAndroidIcons(
               iconIos: const Icon(Icons.arrow_back, color: AppColors.black),
               iconAndroid: const Icon(Icons.arrow_back_ios, color: AppColors.black),
-              onPressed: () {
-                context.pushToGetStart();
-              },
+              onPressed: () => context.pushToGetStart(),
             ),
           ),
         ),
@@ -59,21 +57,20 @@ class _SignupScreenState extends State<SignupScreen> {
               ),
               child: SafeArea(
                 child: SingleChildScrollView(
-                  padding: const EdgeInsets.symmetric(horizontal: 24.0).copyWith(bottom: 80.0), // Added bottom padding
+                  padding: const EdgeInsets.symmetric(horizontal: 24).copyWith(bottom: 80),
                   child: ConstrainedBox(
                     constraints: BoxConstraints(
                       minHeight: constraints.maxHeight - MediaQuery.of(context).padding.top,
                     ),
                     child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      mainAxisSize: MainAxisSize.min, // Prevent over-expansion
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
                       children: [
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             const SizedBox(height: 20),
-                            // Header Section
                             Text(
                               "Create Account",
                               style: TextStyle(
@@ -88,152 +85,34 @@ class _SignupScreenState extends State<SignupScreen> {
                               "Enter your name as it appears in real life. Create a strong password",
                               style: TextStyle(
                                 fontSize: 16,
-                                  color: Colors.grey[700],
+                                color: Colors.grey[700],
                               ),
                             ),
                             const SizedBox(height: 32),
-                            // Form Section
                             FormBuilder(
-                              key: _formkey,
+                              key: _formKey,
                               child: Column(
                                 children: [
-                                  // First Name Field
-                                  Container(
-                                    decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(8),
-                                      boxShadow: [
-                                        BoxShadow(
-                                          color: Colors.black.withOpacity(0.05),
-                                          blurRadius: 6,
-                                          offset: const Offset(0, 2),
-                                        ),
-                                      ],
-                                    ),
-                                    child: FormBuilderTextField(
-                                      name: 'first_name',
-                                      decoration: InputDecoration(
-                                        labelText: 'First name',
-                                        filled: true,
-                                        fillColor: Colors.white,
-                                        border: OutlineInputBorder(
-                                          borderRadius: BorderRadius.circular(8),
-                                          borderSide: BorderSide.none,
-                                        ),
-                                        contentPadding: const EdgeInsets.symmetric(
-                                          horizontal: 16,
-                                          vertical: 14,
-                                        ),
-                                      ),
-                                    ),
+                                  _buildInputField(
+                                    name: 'first_name',
+                                    labelText: 'First name',
                                   ),
                                   SizedBox(height: AppStyle.deviceHeight(context) * 0.03),
-                                  // Last Name Field
-                                  Container(
-                                    decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(8),
-                                      boxShadow: [
-                                        BoxShadow(
-                                          color: Colors.black.withOpacity(0.05),
-                                          blurRadius: 6,
-                                          offset: const Offset(0, 2),
-                                        ),
-                                      ],
-                                    ),
-                                    child: FormBuilderTextField(
-                                      name: 'last_name',
-                                      decoration: InputDecoration(
-                                        labelText: 'Last name',
-                                        filled: true,
-                                        fillColor: Colors.white,
-                                        border: OutlineInputBorder(
-                                          borderRadius: BorderRadius.circular(8),
-                                          borderSide: BorderSide.none,
-                                        ),
-                                        contentPadding: const EdgeInsets.symmetric(
-                                          horizontal: 16,
-                                          vertical: 14,
-                                        ),
-                                      ),
-                                    ),
+                                  _buildInputField(
+                                    name: 'last_name',
+                                    labelText: 'Last name',
                                   ),
                                   SizedBox(height: AppStyle.deviceHeight(context) * 0.03),
-                                  Container(
-                                    decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(8),
-                                      boxShadow: [
-                                        BoxShadow(
-                                          color: Colors.black.withOpacity(0.05),
-                                          blurRadius: 6,
-                                          offset: const Offset(0, 2),
-                                        ),
-                                      ],
-                                    ),
-                                    child: FormBuilderTextField(
-                                      name: 'email',
-                                      decoration: InputDecoration(
-                                        labelText: 'Email',
-                                        filled: true,
-                                        fillColor: Colors.white,
-                                        border: OutlineInputBorder(
-                                          borderRadius: BorderRadius.circular(8),
-                                          borderSide: BorderSide.none,
-                                        ),
-                                        contentPadding: const EdgeInsets.symmetric(
-                                          horizontal: 16,
-                                          vertical: 14,
-                                        ),
-                                      ),
-                                    ),
+                                  _buildInputField(
+                                    name: 'email',
+                                    labelText: 'Email',
                                   ),
                                   SizedBox(height: AppStyle.deviceHeight(context) * 0.03),
-                                  // Password Field
-                                  Container(
-                                    decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(8),
-                                      boxShadow: [
-                                        BoxShadow(
-                                          color: Colors.black.withOpacity(0.05),
-                                          blurRadius: 6,
-                                          offset: const Offset(0, 2),
-                                        ),
-                                      ],
-                                    ),
-                                    child: FormBuilderTextField(
-                                      name: 'password',
-                                      decoration: InputDecoration(
-                                        labelText: 'Password',
-                                        filled: true,
-                                        fillColor: Colors.white,
-                                        border: OutlineInputBorder(
-                                          borderRadius: BorderRadius.circular(8),
-                                          borderSide: BorderSide.none,
-                                        ),
-                                        contentPadding: const EdgeInsets.symmetric(
-                                          horizontal: 16,
-                                          vertical: 14,
-                                        ),
-                                        suffixIcon: IconButton(
-                                          onPressed: () {
-                                            setState(() {
-                                              _isPasswordVisible = !_isPasswordVisible;
-                                            });
-                                          },
-                                          icon: Icon(
-                                            _isPasswordVisible
-                                                ? Icons.visibility
-                                                : Icons.visibility_off,
-                                            color: Colors.grey[600],
-                                          ),
-                                        ),
-                                      ),
-                                      obscureText: !_isPasswordVisible,
-                                    ),
-                                  ),
+                                  _buildPasswordField(),
                                 ],
                               ),
                             ),
                             const SizedBox(height: 24),
-                            // Next Button
                             SizedBox(
                               width: double.infinity,
                               height: 50,
@@ -246,10 +125,8 @@ class _SignupScreenState extends State<SignupScreen> {
                             ),
                           ],
                         ),
-
-
                         Container(
-                          padding: const EdgeInsets.only(bottom: 50.0),
+                          padding: const EdgeInsets.only(bottom: 50),
                           alignment: Alignment.center,
                           child: GestureDetector(
                             onTap: () => context.pushToLogin(),
@@ -280,6 +157,70 @@ class _SignupScreenState extends State<SignupScreen> {
               ),
             );
           },
+        ),
+      ),
+    );
+  }
+
+  Widget _buildInputField({required String name, required String labelText}) {
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(8),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 6,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: FormBuilderTextField(
+        name: name,
+        decoration: InputDecoration(
+          labelText: labelText,
+          filled: true,
+          fillColor: Colors.white,
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(8),
+            borderSide: BorderSide.none,
+          ),
+          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildPasswordField() {
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(8),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 6,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: FormBuilderTextField(
+        name: 'password',
+        obscureText: !_isPasswordVisible,
+        decoration: InputDecoration(
+          labelText: 'Password',
+          filled: true,
+          fillColor: Colors.white,
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(8),
+            borderSide: BorderSide.none,
+          ),
+          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+          suffixIcon: IconButton(
+            onPressed: () => setState(() => _isPasswordVisible = !_isPasswordVisible),
+            icon: Icon(
+              _isPasswordVisible ? Icons.visibility : Icons.visibility_off,
+              color: Colors.grey[600],
+            ),
+          ),
         ),
       ),
     );
