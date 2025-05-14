@@ -72,77 +72,15 @@ class ApiConnectBackend {
   }
 
   /// Simplified GET request
-  Future<Response<T>> get<T>(
-      String endpoint, {
-        Map<String, dynamic>? queryParameters,
-        Map<String, dynamic>? headers,
-      }) async {
+  Future<Response<T>> fetchData<T>({
+    String method = "GET",
+    required String endpoint,
+    Map<String, dynamic>? queryParameters,
+    Map<String, String>? headers,
+  }) async {
     return request<T>(
-      method: 'GET',
+      method: method,
       endpoint: endpoint,
-      queryParameters: queryParameters,
-      headers: headers,
-    );
-  }
-
-  /// Simplified POST request
-  Future<Response<T>> post<T>(
-      String endpoint, {
-        dynamic data,
-        Map<String, dynamic>? queryParameters,
-        Map<String, dynamic>? headers,
-      }) async {
-    return request<T>(
-      method: 'POST',
-      endpoint: endpoint,
-      data: data,
-      queryParameters: queryParameters,
-      headers: headers,
-    );
-  }
-
-  /// PUT request (Full update)
-  Future<Response<T>> put<T>(
-      String endpoint, {
-        dynamic data,
-        Map<String, dynamic>? queryParameters,
-        Map<String, dynamic>? headers,
-      }) async {
-    return request<T>(
-      method: 'PUT',
-      endpoint: endpoint,
-      data: data,
-      queryParameters: queryParameters,
-      headers: headers,
-    );
-  }
-
-  /// PATCH request (Partial update)
-  Future<Response<T>> patch<T>(
-      String endpoint, {
-        dynamic data,
-        Map<String, dynamic>? queryParameters,
-        Map<String, dynamic>? headers,
-      }) async {
-    return request<T>(
-      method: 'PATCH',
-      endpoint: endpoint,
-      data: data,
-      queryParameters: queryParameters,
-      headers: headers,
-    );
-  }
-
-  Future<Response<T>> delete<T>(
-      String endpoint, {
-        dynamic data,
-        Map<String, dynamic>? queryParameters,
-        Map<String, dynamic>? headers,
-      }) async {
-    return request<T>(
-      method: 'DELETE',
-      endpoint: endpoint,
-      data: data,
       queryParameters: queryParameters,
       headers: headers,
     );
