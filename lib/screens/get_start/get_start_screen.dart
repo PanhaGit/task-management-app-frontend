@@ -3,10 +3,17 @@ import 'package:frontend_app_task/constants/app_style.dart';
 import 'package:frontend_app_task/router/app_router.dart';
 import 'package:frontend_app_task/env.dart';
 import 'package:frontend_app_task/wiegtes/custome_button_wiegte.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../../constants/app_colors.dart';
 class GetStartScreen extends StatelessWidget {
   const GetStartScreen({super.key});
-
+  Future<void> _markAsSeenAndNavigate(BuildContext context) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('has_seen_get_start', true);
+    if (context.mounted) {
+      context.goToLogin();
+    }
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -66,7 +73,7 @@ class GetStartScreen extends StatelessWidget {
                       backgroundColor: AppColors.brightSkyBlue,
                       textColor: AppColors.white,
                       buttonText: "Get Start",
-                      onPressed: () => context.pushToSignup(),
+                    onPressed: () => _markAsSeenAndNavigate(context),
                   ).buildButton(),
                 ),
               ),

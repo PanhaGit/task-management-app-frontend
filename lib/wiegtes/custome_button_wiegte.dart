@@ -16,9 +16,10 @@ class CustomButtonWidget {
   Widget buildButton() {
     return ElevatedButton(
       style: ElevatedButton.styleFrom(
+        elevation: 0,
         backgroundColor: backgroundColor,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(30),
         ),
       ),
       onPressed: onPressed,
@@ -26,7 +27,7 @@ class CustomButtonWidget {
         buttonText,
         style: TextStyle(
           fontSize: 16,
-          fontWeight: FontWeight.bold,
+          fontWeight: FontWeight.w500,
           color: textColor,
         ),
       ),
