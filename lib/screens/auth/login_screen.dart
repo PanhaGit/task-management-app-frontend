@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
+import 'package:form_builder_validators/form_builder_validators.dart';
+import 'package:frontend_app_task/constants/app_colors.dart';
 import 'package:frontend_app_task/constants/app_style.dart';
-import 'package:frontend_app_task/router/app_router.dart';
+import 'package:frontend_app_task/controllers/auth/auth_controllers.dart';
 import 'package:frontend_app_task/env.dart';
+import 'package:frontend_app_task/router/app_router.dart';
 import 'package:frontend_app_task/util/is_device_helper.dart';
 import 'package:frontend_app_task/wiegtes/custome_button_wiegte.dart';
-import 'package:go_router/go_router.dart';
-import '../../constants/app_colors.dart';
+import 'package:get/get.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -17,14 +19,26 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen> {
   final IsDeviceHelper _isDeviceHelper = IsDeviceHelper();
-  final _formkey = GlobalKey<FormBuilderState>();
+  final _formKey = GlobalKey<FormBuilderState>();
   bool _isPasswordVisible = false;
+  final _authController = Get.find<AuthControllers>();
+
+  void _handleLogin() async {
+    if (_formKey.currentState!.saveAndValidate()) {
+      final formData = _formKey.currentState!.value;
+      await _authController.loginAccount({
+        'email': formData['email'],
+        'password': formData['password'],
+      });
+      context.goToHome();
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return WillPopScope(
       onWillPop: () async {
-        context.pop();
+        context.goToGetStart();
         return false;
       },
       child: Scaffold(
@@ -38,7 +52,7 @@ class _LoginScreenState extends State<LoginScreen> {
               iconIos: const Icon(Icons.arrow_back, color: AppColors.black),
               iconAndroid: const Icon(Icons.arrow_back_ios, color: AppColors.black),
               onPressed: () {
-                context.pushToGetStart();
+                context.goToGetStart();
               },
             ),
           ),
@@ -60,7 +74,7 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
               child: SafeArea(
                 child: SingleChildScrollView(
-                  padding: const EdgeInsets.symmetric(horizontal: 24.0).copyWith(bottom: 80.0), // Added bottom padding
+                  padding: const EdgeInsets.symmetric(horizontal: 24.0).copyWith(bottom: 80.0),
                   child: ConstrainedBox(
                     constraints: BoxConstraints(
                       minHeight: constraints.maxHeight - MediaQuery.of(context).padding.top,
@@ -68,7 +82,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      mainAxisSize: MainAxisSize.min, // Prevent over-expansion
+                      mainAxisSize: MainAxisSize.min,
                       children: [
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -76,17 +90,17 @@ class _LoginScreenState extends State<LoginScreen> {
                             const SizedBox(height: 20),
                             // Header Section
                             Center(
-                              child: Image.asset(Env.logo ,
+                              child: Image.asset(
+                                Env.logo,
                                 width: AppStyle.deviceWidth(context) * 0.70,
                               ),
                             ),
                             const SizedBox(height: 32),
                             // Form Section
                             FormBuilder(
-                              key: _formkey,
+                              key: _formKey,
                               child: Column(
                                 children: [
-
                                   SizedBox(height: AppStyle.deviceHeight(context) * 0.03),
                                   Container(
                                     decoration: BoxDecoration(
@@ -114,6 +128,10 @@ class _LoginScreenState extends State<LoginScreen> {
                                           vertical: 14,
                                         ),
                                       ),
+                                      validator: FormBuilderValidators.compose([
+                                        FormBuilderValidators.required(),
+                                        FormBuilderValidators.email(),
+                                      ]),
                                     ),
                                   ),
                                   SizedBox(height: AppStyle.deviceHeight(context) * 0.03),
@@ -158,44 +176,44 @@ class _LoginScreenState extends State<LoginScreen> {
                                         ),
                                       ),
                                       obscureText: !_isPasswordVisible,
+                                      validator: FormBuilderValidators.compose([
+                                        FormBuilderValidators.required(),
+                                        FormBuilderValidators.minLength(6),
+                                      ]),
                                     ),
                                   ),
                                 ],
                               ),
                             ),
-
-
-
-                             SizedBox(height: 24),
+                            const SizedBox(height: 24),
                             // Next Button
                             SizedBox(
                               width: double.infinity,
                               height: 50,
-                              child: CustomButtonWidget(
+                              child: Obx(() => CustomButtonWidget(
                                 backgroundColor: AppColors.brightSkyBlue,
                                 textColor: AppColors.white,
-                                buttonText: "Next",
-                                onPressed: () => context.goToHome(),
-                              ).buildButton(),
+                                buttonText: _authController.isLoading.value ? "Loading..." : "Next",
+                                onPressed: _authController.isLoading.value ? null : _handleLogin,
+                              ).buildButton()),
                             ),
-                            Container(
-                              child: TextButton(onPressed: () => context.goToForgetPassword(),
-                                child: Center(
-                                  child: Text("Forgot password?", style: TextStyle(
+                            TextButton(
+                              onPressed: () => context.goToForgetPassword(),
+                              child: const Center(
+                                child: Text(
+                                  "Forgot password?",
+                                  style: TextStyle(
                                     color: AppColors.charcoalGray,
-                                  ),
                                   ),
                                 ),
                               ),
                             ),
                           ],
                         ),
-
-
                         Container(
                           padding: const EdgeInsets.only(bottom: 50.0),
                           alignment: Alignment.center,
-                          child:  Text(
+                          child: const Text(
                             "Team PLRS",
                             style: TextStyle(fontSize: 12, color: AppColors.black),
                           ),

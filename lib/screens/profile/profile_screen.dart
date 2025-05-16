@@ -1,10 +1,48 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:frontend_app_task/background_gradient.dart';
 import 'package:frontend_app_task/constants/app_colors.dart';
 import 'package:frontend_app_task/router/app_router.dart';
 import 'package:frontend_app_task/wiegtes/custome_button_wiegte.dart';
+import 'package:get/get.dart';
+import 'package:cached_network_image/cached_network_image.dart';
+
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
+
+  Future<void> _deleteTokens() async {
+    const storage = FlutterSecureStorage();
+    await storage.delete(key: 'access_token');
+    await storage.delete(key: 'refresh_token');
+  }
+
+  Future<void> _handleLogout(BuildContext context) async {
+    try {
+      // Show snackbar first
+      Get.snackbar(
+        'Success',
+        'Logged out successfully',
+        snackPosition: SnackPosition.BOTTOM,
+        duration: const Duration(seconds: 2),
+        animationDuration: const Duration(milliseconds: 300),
+      );
+      // Delete tokens in main thread
+      await _deleteTokens();
+      // Delay to ensure snackbar visibility
+      await Future.delayed(const Duration(seconds: 2));
+      if (context.mounted) {
+        context.goToLogin();
+      }
+    } catch (e) {
+      Get.snackbar(
+        'Error',
+        'Logout failed: $e',
+        snackPosition: SnackPosition.BOTTOM,
+        duration: const Duration(seconds: 3),
+        animationDuration: const Duration(milliseconds: 300),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -32,7 +70,6 @@ class ProfileScreen extends StatelessWidget {
                         alignment: Alignment.bottomCenter,
                         clipBehavior: Clip.none,
                         children: [
-                          // Cover Image
                           Container(
                             height: 150,
                             width: double.infinity,
@@ -40,20 +77,20 @@ class ProfileScreen extends StatelessWidget {
                               borderRadius: BorderRadius.circular(12),
                               color: Colors.grey[300],
                               image: const DecorationImage(
-                                image: NetworkImage('https://example.com/cover-image.jpg'),
+                                image: CachedNetworkImageProvider(
+                                    'https://upload.wikimedia.org/wikipedia/commons/thumb/d/d9/Node.js_logo.svg/1200px-Node.js_logo.svg.png'),
                                 fit: BoxFit.cover,
                               ),
                             ),
                             child: Align(
                               alignment: Alignment.topRight,
                               child: IconButton(
-                                icon: const Icon(Icons.camera_alt, color: Colors.white),
+                                icon: const Icon(Icons.camera_alt,
+                                    color: Colors.white),
                                 onPressed: () => _changeCoverImage(context),
                               ),
                             ),
                           ),
-
-                          // Profile Image
                           Positioned(
                             bottom: -50,
                             child: GestureDetector(
@@ -63,10 +100,12 @@ class ProfileScreen extends StatelessWidget {
                                 height: 100,
                                 decoration: BoxDecoration(
                                   shape: BoxShape.circle,
-                                  border: Border.all(color: Colors.white, width: 4),
+                                  border: Border.all(
+                                      color: Colors.white, width: 4),
                                   color: Colors.grey[200],
                                   image: const DecorationImage(
-                                    image: NetworkImage('https://example.com/profile-image.jpg'),
+                                    image: CachedNetworkImageProvider(
+                                        'https://upload.wikimedia.org/wikipedia/commons/thumb/d/d9/Node.js_logo.svg/1200px-Node.js_logo.svg.png'),
                                     fit: BoxFit.cover,
                                   ),
                                 ),
@@ -75,7 +114,8 @@ class ProfileScreen extends StatelessWidget {
                                   child: CircleAvatar(
                                     radius: 14,
                                     backgroundColor: Colors.blue,
-                                    child: Icon(Icons.camera_alt, size: 16, color: Colors.white),
+                                    child: Icon(Icons.camera_alt,
+                                        size: 16, color: Colors.white),
                                   ),
                                 ),
                               ),
@@ -83,62 +123,39 @@ class ProfileScreen extends StatelessWidget {
                           ),
                         ],
                       ),
-
-                      const SizedBox(height: 60), // Space for profile image overlap
-
-                      // User Information Section
-                      Card(
-                        elevation: 4,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Padding(
-                          padding: const EdgeInsets.all(16.0),
-                          child: Column(
-                            children: [
-                              _buildProfileField(
-                                context,
-                                label: 'Username',
-                                value: 'JohnDoe',
-                                icon: Icons.person,
-                              ),
-                              const Divider(height: 20),
-                              _buildProfileField(
-                                context,
-                                label: 'Email',
-                                value: 'john.doe@example.com',
-                                icon: Icons.email,
-                              ),
-                              const Divider(height: 20),
-                              _buildProfileField(
-                                context,
-                                label: 'Phone Number',
-                                value: '+1 (555) 123-4567',
-                                icon: Icons.phone,
-                              ),
-                            ],
-                          ),
-                        ),
+                      const SizedBox(height: 60),
+                      // Change Password Option
+                      _buildProfileField(
+                        context,
+                        leftIcon: Icons.lock,
+                        label: "Change Password",
+                        rightIcon: Icons.arrow_forward_ios,
+                        color: AppColors.black,
+                        onTap: () {
+                          try {
+                            context.goToForgetPassword();
+                          } catch (e) {
+                            Get.snackbar(
+                              'Error',
+                              'Navigation failed: $e',
+                              snackPosition: SnackPosition.BOTTOM,
+                              duration: const Duration(seconds: 3),
+                            );
+                          }
+                        },
                       ),
-
                       const SizedBox(height: 20),
-
-                      // Change Password Button
+                      // Logout Button
                       SizedBox(
                         width: double.infinity,
-                        height: 50,
+                        height: 45,
                         child: CustomButtonWidget(
-                          backgroundColor: AppColors.brightSkyBlue,
-                          textColor: AppColors.white,
-                          buttonText: "Change Password",  // Changed from Text widget to String
-                          onPressed: () {
-                            context.pushToForgetPass();
-                          },
+                          backgroundColor: AppColors.gray,
+                          textColor: AppColors.black,
+                          buttonText: "Log out",
+                          onPressed: () => _handleLogout(context),
                         ).buildButton(),
                       ),
-
-                      // Add an empty SizedBox at the bottom to ensure content stays centered
-                      // when there's extra space
                       SizedBox(height: MediaQuery.of(context).padding.bottom),
                     ],
                   ),
@@ -151,39 +168,35 @@ class ProfileScreen extends StatelessWidget {
     );
   }
 
-  // Rest of your helper methods remain the same...
-  Widget _buildProfileField(BuildContext context, {
-    required String label,
-    required String value,
-    required IconData icon,
-  }) {
-    return Row(
-      children: [
-        Icon(icon, color: Colors.blue),
-        const SizedBox(width: 16),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                label,
-                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: Colors.grey,
-                ),
-              ),
-              const SizedBox(height: 4),
-              Text(
-                value,
-                style: Theme.of(context).textTheme.bodyLarge,
-              ),
-            ],
-          ),
+  Widget _buildProfileField(
+      BuildContext context, {
+        required IconData leftIcon,
+        required String label,
+        required IconData rightIcon,
+        required Color color,
+        required VoidCallback onTap,
+      }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 16),
+        decoration: BoxDecoration(
+          border: Border(bottom: BorderSide(color: Colors.grey.shade300)),
         ),
-        IconButton(
-          icon: const Icon(Icons.edit, size: 20),
-          onPressed: () => _editField(context, label, value),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Row(
+              children: [
+                Icon(leftIcon, color: color),
+                const SizedBox(width: 16),
+                Text(label, style: Theme.of(context).textTheme.bodyLarge),
+              ],
+            ),
+            Icon(rightIcon, color: color),
+          ],
         ),
-      ],
+      ),
     );
   }
 
@@ -215,108 +228,22 @@ class ProfileScreen extends StatelessWidget {
           ListTile(
             leading: const Icon(Icons.camera),
             title: const Text('Take Photo'),
-            onTap: () {
-              Navigator.pop(context);
-              // Implement camera functionality
-            },
+            onTap: () => Navigator.pop(context),
           ),
           ListTile(
             leading: const Icon(Icons.photo_library),
             title: const Text('Choose from Gallery'),
-            onTap: () {
-              Navigator.pop(context);
-              // Implement gallery picker functionality
-            },
+            onTap: () => Navigator.pop(context),
           ),
-          if (type == 'Profile') ListTile(
-            leading: const Icon(Icons.delete, color: Colors.red),
-            title: const Text('Remove Photo', style: TextStyle(color: Colors.red)),
-            onTap: () {
-              Navigator.pop(context);
-              // Implement remove photo functionality
-            },
-          ),
-        ],
-      ),
-    );
-  }
-
-  void _editField(BuildContext context, String field, String currentValue) {
-    TextEditingController controller = TextEditingController(text: currentValue);
-
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text('Edit $field'),
-        content: TextField(
-          controller: controller,
-          decoration: InputDecoration(
-            labelText: 'New $field',
-            border: const OutlineInputBorder(),
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              // Implement save logic
-              Navigator.pop(context);
-            },
-            child: const Text('Save'),
-          ),
-        ],
-      ),
-    );
-  }
-
-  void _changePassword(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Change Password'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            TextField(
-              obscureText: true,
-              decoration: const InputDecoration(
-                labelText: 'Current Password',
-                border: OutlineInputBorder(),
+          if (type == 'Profile')
+            ListTile(
+              leading: const Icon(Icons.delete, color: Colors.red),
+              title: const Text(
+                'Remove Photo',
+                style: TextStyle(color: Colors.red),
               ),
+              onTap: () => Navigator.pop(context),
             ),
-            const SizedBox(height: 16),
-            TextField(
-              obscureText: true,
-              decoration: const InputDecoration(
-                labelText: 'New Password',
-                border: OutlineInputBorder(),
-              ),
-            ),
-            const SizedBox(height: 16),
-            TextField(
-              obscureText: true,
-              decoration: const InputDecoration(
-                labelText: 'Confirm New Password',
-                border: OutlineInputBorder(),
-              ),
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              // Implement password change logic
-              Navigator.pop(context);
-            },
-            child: const Text('Update Password'),
-          ),
         ],
       ),
     );

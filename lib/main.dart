@@ -6,19 +6,23 @@ import 'package:frontend_app_task/router/routes.dart';
 import 'package:frontend_app_task/services/firebase_notification/notification_services.dart';
 import 'package:get/get.dart';
 import 'package:frontend_app_task/controllers/notification_controller.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:cached_network_image/cached_network_image.dart';
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
 
-  /**
-   * @anthor: Tho Panha
-   * @Initialize GetX controller
-   * */
-  Get.put(NotificationController());
-  Get.put(AuthControllers());
+  // Initialize cached_network_image
+  CachedNetworkImage.logLevel = CacheManagerLogLevel.debug;
 
-  // Initialize notification service (context-independent)
+  /**
+   * @author: Tho Panha
+   * @Initialize GetX controllers
+   */
+  Get.put(AuthControllers());
+  Get.put(NotificationController());
+
+  // Initialize notification service
   final notificationService = NotificationServices();
   notificationService.requestNotificationPermission();
 
@@ -30,13 +34,16 @@ class MongKolApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp.router(
+    return GetMaterialApp.router(
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         scaffoldBackgroundColor: AppColors.white,
       ),
       title: "Mong Kol App Task",
-      routerConfig: Routes.router, // This should be your GoRouter instance
+      routerDelegate: Routes.router.routerDelegate,
+      routeInformationParser: Routes.router.routeInformationParser,
+      routeInformationProvider: Routes.router.routeInformationProvider,
+      enableLog: true,
     );
   }
 }

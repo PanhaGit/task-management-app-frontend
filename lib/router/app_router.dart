@@ -1,54 +1,45 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+
 extension AppRouter on BuildContext {
+    // ************************** Use for Go **************************
+    /**
+     * @author Tho Panha
+     * Authentication Routes: /auth/
+     * Initial Routes: /splash, /get_start
+     * Main Routes: /, /calendar, /add_task, /notification, /profile
+        */
+        void goToLogin() => go('/auth/login');
+        void goToSignup() => go('/auth/signup');
+        void goToForgetPassword() => go('/auth/forget_password');
+        void goToDOB() => go('/auth/dob');
 
-  // ************************** Use for Go **************************
-  /**
-   * @author Tho Panha
-   * Authentication Route: auth
-   * Route: auth/login , auth/signup, auth/change_password, auth/email ,auth/verify_otp
-   * */
+        // Initial screens
+        void goToSplash() => go('/splash');
+        void goToGetStart() => go('/get_start');
 
-  void goToLogin () => go("auth/login");
-  void goToSignup() => go('/auth/signup');
-  void goToForgetPassword() => go('/auth/forget_password');
+        // Main routes (within StatefulShellRoute)
+        void goToHome() => go('/');
+        void goToCalendar() => go('/calendar');
+        void goToAddTask() => go('/add_task');
+        void goToNotification() => go('/notification');
+        void goToProfile() => go('/profile');
 
+        // ************************** Use for Push **************************
+        /**
+     * @author Tho Panha
+     * Use push only for routes within StatefulShellRoute
+        */
+        void pushToHome() => push('/');
+        void pushToCalendar() => push('/calendar');
+        void pushToAddTask() => push('/add_task');
+        void pushToNotification() => push('/notification');
+        void pushToProfile() => push('/profile');
 
-
-
-  // Initial screens with Go
-  void goToSplash() => go('/splash');
-  void goToGetStart() => go('/get_start');
-  void goToHome() => go('/');
-  void goToCalendar() => go('/calendar');
-  void goToAddTask() => go('/add_task');
-  void goToNotification() => go('/notification');
-  void goToProfile() => go('/profile');
-  // ************************** Use for Push **************************
-
-  /**
-   * @author Tho Panha
-   * Authentication Route: auth
-   * Route: >> / << is Home Screen
-   * Route: / , /calendar, /add_task, /notification ,/profile
-   * */
-
-  void pushToHome() => push('/');
-  void pushToCalendar() => push('/calendar');
-  void pushToAddTask() => push('/add_task');
-  void pushToNotification() => push('/notification');
-  void pushToProfile() => push('/profile');
-
-  /**
-   * @author Tho Panha
-   * Authentication Route: auth
-   * Route: auth/login , auth/signup, auth/change_password, auth/email ,auth/verify_otp
-   * */
-  void pushToLogin () => push("/auth/login");
-  void pushToSignup() => push('/auth/signup');
-  void pushToDOB() => push('/auth/dob');
-  void pushToForgetPass() => push('/auth/forget_password');
-
-  // Initial screens with push
-  void pushToGetStart() => push('/get_start');
-}
+        // Push for auth routes (use go to avoid stack issues)
+        void pushToLogin() => go('/auth/login');
+        void pushToSignup() => go('/auth/signup');
+        void pushToDOB() => go('/auth/dob');
+        void pushToForgetPass() => go('/auth/forget_password');
+        void pushToGetStart() => go('/get_start');
+        }
