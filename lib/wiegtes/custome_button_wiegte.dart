@@ -4,13 +4,13 @@ class CustomButtonWidget {
   final Color backgroundColor;
   final Color textColor;
   final String buttonText;
-  final VoidCallback onPressed;
+  final VoidCallback? onPressed;
 
   CustomButtonWidget({
     required this.backgroundColor,
     required this.textColor,
     required this.buttonText,
-    required this.onPressed,
+    this.onPressed,
   });
 
   Widget buildButton() {

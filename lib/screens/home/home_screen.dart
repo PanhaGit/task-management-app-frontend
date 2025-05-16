@@ -1,5 +1,19 @@
 import 'package:flutter/material.dart';
 
+import 'package:frontend_app_task/background_gradient.dart';
+import 'package:frontend_app_task/constants/app_colors.dart';
+import 'package:frontend_app_task/controllers/auth/auth_controllers.dart';
+import 'package:frontend_app_task/controllers/homeController.dart';
+import 'package:get/get.dart';
+import 'package:intl/intl.dart';
+import 'package:table_calendar/table_calendar.dart';
+
+class HomeScreen extends StatelessWidget {
+  final HomeController controller = Get.put(HomeController());
+  final AuthControllers authController = Get.find<AuthControllers>();
+
+  HomeScreen({super.key});
+
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
@@ -50,7 +64,10 @@ class _HomeScreenState extends State<HomeScreen> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             const Text(
+              "Welcome ",
+
               'Usage Electric',
+
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
@@ -143,6 +160,38 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
+  // Rest of your existing methods (_buildCalendarView, _buildTaskView, _buildTaskCard) remain unchanged
+  Widget _buildCalendarView() {
+    return SingleChildScrollView(
+      child: Column(
+        children: [
+          Obx(() => TableCalendar(
+            firstDay: DateTime.utc(2020, 1, 1),
+            lastDay: DateTime.utc(2030, 12, 31),
+            focusedDay: controller.focusedDay.value,
+            calendarFormat: controller.calendarFormat.value,
+            selectedDayPredicate: (day) =>
+                isSameDay(controller.selectedDay.value, day),
+            onDaySelected: controller.onDaySelected,
+            onPageChanged: controller.onPageChanged,
+            calendarStyle: const CalendarStyle(
+              selectedDecoration: BoxDecoration(
+                color: Colors.teal,
+                shape: BoxShape.circle,
+              ),
+              todayDecoration: BoxDecoration(
+                color: Colors.lightBlueAccent,
+                shape: BoxShape.circle,
+              ),
+              weekendTextStyle: TextStyle(color: Colors.black87),
+              defaultTextStyle: TextStyle(color: Colors.black87),
+            ),
+            headerStyle: const HeaderStyle(
+              formatButtonVisible: false,
+              titleCentered: true,
+              titleTextStyle: TextStyle(
+                color: Colors.black,
+
   Widget _buildDataUsageDashboard() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -153,6 +202,7 @@ class _HomeScreenState extends State<HomeScreen> {
             const Text(
               'Data Usage',
               style: TextStyle(
+
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
               ),

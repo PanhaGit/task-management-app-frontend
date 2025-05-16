@@ -1,10 +1,7 @@
 import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:frontend_app_task/router/app_router.dart';
-import 'package:frontend_app_task/util/env.dart';
-// ignore: unused_import
-import 'package:go_router/go_router.dart';
+import 'package:frontend_app_task/env.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import '../constants/app_style.dart';
 import '../constants/app_colors.dart';

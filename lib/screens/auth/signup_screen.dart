@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
+import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:frontend_app_task/constants/app_style.dart';
+import 'package:frontend_app_task/controllers/auth/auth_controllers.dart';
 import 'package:frontend_app_task/router/app_router.dart';
 import 'package:frontend_app_task/util/is_device_helper.dart';
 import 'package:frontend_app_task/wiegtes/custome_button_wiegte.dart';
+import 'package:frontend_app_task/wiegtes/custome_form_builder_text_field.dart';
 import 'package:go_router/go_router.dart';
 import '../../constants/app_colors.dart';
 
@@ -15,8 +18,8 @@ class SignupScreen extends StatefulWidget {
 }
 
 class _SignupScreenState extends State<SignupScreen> {
+  final AuthControllers _authControllers = AuthControllers();
   final _formKey = GlobalKey<FormBuilderState>();
-  bool _isPasswordVisible = false;
   final IsDeviceHelper _isDeviceHelper = IsDeviceHelper();
 
   @override
@@ -65,7 +68,6 @@ class _SignupScreenState extends State<SignupScreen> {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisSize: MainAxisSize.min,
                       children: [
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -93,22 +95,50 @@ class _SignupScreenState extends State<SignupScreen> {
                               key: _formKey,
                               child: Column(
                                 children: [
-                                  _buildInputField(
+                                  CustomFormBuilderTextField(
                                     name: 'first_name',
-                                    labelText: 'First name',
+                                    label: 'First name',
+                                    validators: [
+                                      FormBuilderValidators.required(errorText: 'First name is required'),
+                                    ],
                                   ),
                                   SizedBox(height: AppStyle.deviceHeight(context) * 0.03),
-                                  _buildInputField(
+                                  CustomFormBuilderTextField(
                                     name: 'last_name',
-                                    labelText: 'Last name',
+                                    label: 'Last name',
+                                    validators: [
+                                      FormBuilderValidators.required(errorText: 'Last name is required'),
+                                    ],
                                   ),
                                   SizedBox(height: AppStyle.deviceHeight(context) * 0.03),
-                                  _buildInputField(
+                                  CustomFormBuilderTextField(
+                                    name: 'phone_number',
+                                    label: 'Phone Number',
+                                    validators: [
+                                      FormBuilderValidators.required(errorText: 'Phone Number is required'),
+                                    ],
+                                  ),
+                                  SizedBox(height: AppStyle.deviceHeight(context) * 0.03),
+                                  CustomFormBuilderTextField(
                                     name: 'email',
-                                    labelText: 'Email',
+                                    label: 'Email',
+                                    inputType: TextInputType.emailAddress,
+                                    validators: [
+                                      FormBuilderValidators.required(errorText: 'Email is required'),
+                                      FormBuilderValidators.email(errorText: 'Enter a valid email'),
+                                    ],
                                   ),
                                   SizedBox(height: AppStyle.deviceHeight(context) * 0.03),
-                                  _buildPasswordField(),
+                                  CustomFormBuilderTextField(
+                                    name: 'password',
+                                    label: 'Password',
+                                    isPassword: true,
+
+                                    validators: [
+                                      FormBuilderValidators.required(errorText: 'Password is required'),
+                                      FormBuilderValidators.minLength(6, errorText: 'Minimum 6 characters'),
+                                    ],
+                                  ),
                                 ],
                               ),
                             ),
@@ -120,7 +150,15 @@ class _SignupScreenState extends State<SignupScreen> {
                                 backgroundColor: AppColors.brightSkyBlue,
                                 textColor: AppColors.white,
                                 buttonText: "Next",
-                                onPressed: () => context.goToHome(),
+                                onPressed: () async {
+                                  if (_formKey.currentState?.saveAndValidate() ?? false) {
+                                    final formData = _formKey.currentState!.value;
+                                    await _authControllers.signupAccount(formData);
+                                    context.goToHome();
+                                  }else{
+                                    context.pushToSignup();
+                                  }
+                                },
                               ).buildButton(),
                             ),
                           ],
@@ -157,70 +195,6 @@ class _SignupScreenState extends State<SignupScreen> {
               ),
             );
           },
-        ),
-      ),
-    );
-  }
-
-  Widget _buildInputField({required String name, required String labelText}) {
-    return Container(
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(8),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 6,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: FormBuilderTextField(
-        name: name,
-        decoration: InputDecoration(
-          labelText: labelText,
-          filled: true,
-          fillColor: Colors.white,
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(8),
-            borderSide: BorderSide.none,
-          ),
-          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildPasswordField() {
-    return Container(
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(8),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 6,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: FormBuilderTextField(
-        name: 'password',
-        obscureText: !_isPasswordVisible,
-        decoration: InputDecoration(
-          labelText: 'Password',
-          filled: true,
-          fillColor: Colors.white,
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(8),
-            borderSide: BorderSide.none,
-          ),
-          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-          suffixIcon: IconButton(
-            onPressed: () => setState(() => _isPasswordVisible = !_isPasswordVisible),
-            icon: Icon(
-              _isPasswordVisible ? Icons.visibility : Icons.visibility_off,
-              color: Colors.grey[600],
-            ),
-          ),
         ),
       ),
     );

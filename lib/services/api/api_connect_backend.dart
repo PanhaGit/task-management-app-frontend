@@ -1,5 +1,5 @@
 import 'package:dio/dio.dart';
-import 'package:frontend_app_task/util/env.dart';
+import 'package:frontend_app_task/env.dart';
 
 class ApiConnectBackend {
   final Dio _dio;
@@ -9,7 +9,7 @@ class ApiConnectBackend {
 
   ApiConnectBackend({Dio? dio}) : _dio = dio ?? Dio() {
     _dio.options = BaseOptions(
-      baseUrl: Env.BASE_URL, // Access the static field directly
+      baseUrl: Env.BASE_URL,
       connectTimeout: const Duration(milliseconds: connectTimeout),
       receiveTimeout: const Duration(milliseconds: receiveTimeout),
       sendTimeout: const Duration(milliseconds: sendTimeout),

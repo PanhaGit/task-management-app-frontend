@@ -1,17 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:frontend_app_task/constants/app_colors.dart';
-import 'package:frontend_app_task/router/routes.dart'; // Assuming you define GoRouter here
+import 'package:frontend_app_task/controllers/auth/auth_controllers.dart';
+import 'package:frontend_app_task/router/routes.dart';
 import 'package:frontend_app_task/services/firebase_notification/notification_services.dart';
 import 'package:get/get.dart';
 import 'package:frontend_app_task/controllers/notification_controller.dart';
-
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
 
-  // Initialize GetX controller
+  /**
+   * @anthor: Tho Panha
+   * @Initialize GetX controller
+   * */
   Get.put(NotificationController());
+  Get.put(AuthControllers());
 
   // Initialize notification service (context-independent)
   final notificationService = NotificationServices();

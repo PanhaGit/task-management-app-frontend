@@ -16,7 +16,7 @@ import '../screens/home/home_screen.dart';
 class Routes {
   static final GoRouter router = GoRouter(
     initialLocation: '/splash',
-    // initialLocation: '/auth/login',
+    // initialLocation: '/auth/signup',
     routes: [
       GoRoute(
         path: '/splash',
