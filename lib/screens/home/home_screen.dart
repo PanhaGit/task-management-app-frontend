@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:frontend_app_task/background_gradient.dart';
 import 'package:frontend_app_task/constants/app_colors.dart';
+import 'package:frontend_app_task/controllers/auth/auth_controllers.dart';
 import 'package:frontend_app_task/controllers/homeController.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
@@ -8,6 +9,7 @@ import 'package:table_calendar/table_calendar.dart';
 
 class HomeScreen extends StatelessWidget {
   final HomeController controller = Get.put(HomeController());
+  final AuthControllers authController = Get.find<AuthControllers>();
 
   HomeScreen({super.key});
 
@@ -29,7 +31,7 @@ class HomeScreen extends StatelessWidget {
               ),
             ),
             const Text(
-              "Welcome Mr.GoJo",
+              "Welcome ",
               style: TextStyle(
                 fontSize: 16,
                 color: Colors.black54,
@@ -72,6 +74,7 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
+  // Rest of your existing methods (_buildCalendarView, _buildTaskView, _buildTaskCard) remain unchanged
   Widget _buildCalendarView() {
     return SingleChildScrollView(
       child: Column(

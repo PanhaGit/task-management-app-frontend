@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 
-class CustomFormBuilderTextField extends StatelessWidget {
+class CustomFormBuilderTextField extends StatefulWidget {
   final String name;
   final String label;
   final TextInputType inputType;
@@ -19,14 +19,21 @@ class CustomFormBuilderTextField extends StatelessWidget {
   }) : super(key: key);
 
   @override
+  State<CustomFormBuilderTextField> createState() => _CustomFormBuilderTextFieldState();
+}
+
+class _CustomFormBuilderTextFieldState extends State<CustomFormBuilderTextField> {
+  bool _isPasswordVisible = false;
+
+  @override
   Widget build(BuildContext context) {
     return FormBuilderTextField(
-      name: name,
-      obscureText: isPassword,
-      keyboardType: inputType,
-      validator: FormBuilderValidators.compose(validators ?? []),
+      name: widget.name,
+      obscureText: widget.isPassword && !_isPasswordVisible,
+      keyboardType: widget.inputType,
+      validator: FormBuilderValidators.compose(widget.validators ?? []),
       decoration: InputDecoration(
-        labelText: label,
+        labelText: widget.label,
         filled: true,
         fillColor: Colors.white,
         border: OutlineInputBorder(
@@ -37,6 +44,19 @@ class CustomFormBuilderTextField extends StatelessWidget {
           horizontal: 16,
           vertical: 14,
         ),
+        suffixIcon: widget.isPassword
+            ? IconButton(
+          onPressed: () {
+            setState(() {
+              _isPasswordVisible = !_isPasswordVisible;
+            });
+          },
+          icon: Icon(
+            _isPasswordVisible ? Icons.visibility : Icons.visibility_off,
+            color: Colors.grey[600],
+          ),
+        )
+            : null,
       ),
     );
   }
