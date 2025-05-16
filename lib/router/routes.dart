@@ -42,7 +42,7 @@ class Routes {
             GoRoute(path: '/', builder: (_, __) =>  HomeScreen()),
           ]),
           StatefulShellBranch(routes: <RouteBase>[
-            GoRoute(path: '/calendar', builder: (_, __) => const CalendarScreen()),
+            GoRoute(path: '/calendar', builder: (_, __) => CalendarScreen()),
           ]),
           StatefulShellBranch(routes: [
             GoRoute(path: '/add_task', builder: (_, __) => const AddTaskScreen()),
