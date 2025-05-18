@@ -5,6 +5,7 @@ import 'package:frontend_app_task/constants/app_colors.dart';
 import 'package:frontend_app_task/constants/app_style.dart';
 import 'package:frontend_app_task/controllers/auth/auth_controllers.dart';
 import 'package:frontend_app_task/env.dart';
+import 'package:frontend_app_task/models/auth/auth.dart';
 import 'package:frontend_app_task/router/app_router.dart';
 import 'package:frontend_app_task/util/is_device_helper.dart';
 import 'package:frontend_app_task/wiegtes/custome_button_wiegte.dart';
@@ -21,16 +22,29 @@ class _LoginScreenState extends State<LoginScreen> {
   final IsDeviceHelper _isDeviceHelper = IsDeviceHelper();
   final _formKey = GlobalKey<FormBuilderState>();
   bool _isPasswordVisible = false;
-  final _authController = Get.find<AuthControllers>();
+  final AuthControllers _authController = Get.find<AuthControllers>();
 
-  void _handleLogin() async {
-    if (_formKey.currentState!.saveAndValidate()) {
+  Future<void> _handleLogin() async {
+    if (_formKey.currentState?.saveAndValidate() ?? false) {
       final formData = _formKey.currentState!.value;
-      await _authController.loginAccount({
-        'email': formData['email'],
-        'password': formData['password'],
-      });
-      context.goToHome();
+      try {
+        await _authController.login(
+          LoginRequest(
+            email: formData['email'],
+            password: formData['password'],
+          ),
+          context,
+        );
+        if (_authController.currentUser.value != null) {
+          context.goToHome();
+        }
+      } catch (e) {
+        Get.snackbar(
+          'Error',
+          e.toString(),
+          snackPosition: SnackPosition.BOTTOM,
+        );
+      }
     }
   }
 
@@ -193,12 +207,16 @@ class _LoginScreenState extends State<LoginScreen> {
                               child: Obx(() => CustomButtonWidget(
                                 backgroundColor: AppColors.brightSkyBlue,
                                 textColor: AppColors.white,
-                                buttonText: _authController.isLoading.value ? "Loading..." : "Next",
-                                onPressed: _authController.isLoading.value ? null : _handleLogin,
+                                buttonText: _authController.isLoading.value
+                                    ? "Loading..."
+                                    : "Next",
+                                onPressed: _authController.isLoading.value
+                                    ? null
+                                    : _handleLogin,
                               ).buildButton()),
                             ),
                             TextButton(
-                              onPressed: () => context.goToForgetPassword(),
+                              onPressed: () => context.pushToForgetPass(),
                               child: const Center(
                                 child: Text(
                                   "Forgot password?",

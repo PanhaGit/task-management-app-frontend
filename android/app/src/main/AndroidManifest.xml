@@ -1,17 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
           package="com.mongkol_task.application">
 
+    <!-- Minimum and target SDK versions -->
+    <uses-sdk
+            android:minSdkVersion="21"
+            android:targetSdkVersion="33" />
+
     <!-- Permission for posting notifications (required for Android 13 and above) -->
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+
+    <!-- Other permissions your app might require can go here -->
 
     <application
             android:label="MongKol Task App"
             android:icon="@mipmap/mongkol_logo"
             android:roundIcon="@mipmap/mongkol_logo"
-            android:enableOnBackInvokedCallback="true">
+            android:enableOnBackInvokedCallback="true"
+            android:usesCleartextTraffic="true"
+            android:allowBackup="true"
+            android:theme="@style/LaunchTheme">
 
-
-    <activity
+        <activity
                 android:name=".MainActivity"
                 android:exported="true"
                 android:launchMode="singleTop"
@@ -27,8 +37,8 @@
                     android:value="high_importance_channel" />
 
             <intent-filter>
-                <action android:name="android.intent.action.MAIN"/>
-                <category android:name="android.intent.category.LAUNCHER"/>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
 
@@ -41,8 +51,8 @@
     <!-- Required to query activities that can process text, see: https://developer.android.com/training/package-visibility -->
     <queries>
         <intent>
-            <action android:name="android.intent.action.PROCESS_TEXT"/>
-            <data android:mimeType="text/plain"/>
+            <action android:name="android.intent.action.PROCESS_TEXT" />
+            <data android:mimeType="text/plain" />
         </intent>
     </queries>
 

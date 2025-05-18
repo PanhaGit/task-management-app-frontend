@@ -1,14 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
+import 'package:frontend_app_task/constants/app_colors.dart';
 import 'package:frontend_app_task/constants/app_style.dart';
 import 'package:frontend_app_task/controllers/auth/auth_controllers.dart';
+import 'package:frontend_app_task/models/auth/auth.dart';
 import 'package:frontend_app_task/router/app_router.dart';
 import 'package:frontend_app_task/util/is_device_helper.dart';
 import 'package:frontend_app_task/wiegtes/custome_button_wiegte.dart';
 import 'package:frontend_app_task/wiegtes/custome_form_builder_text_field.dart';
-import 'package:go_router/go_router.dart';
-import '../../constants/app_colors.dart';
+import 'package:get/get.dart';
 
 class SignupScreen extends StatefulWidget {
   const SignupScreen({super.key});
@@ -18,15 +19,43 @@ class SignupScreen extends StatefulWidget {
 }
 
 class _SignupScreenState extends State<SignupScreen> {
-  final AuthControllers _authControllers = AuthControllers();
   final _formKey = GlobalKey<FormBuilderState>();
   final IsDeviceHelper _isDeviceHelper = IsDeviceHelper();
+  final AuthControllers _authController = Get.find<AuthControllers>();
+  bool _isPasswordVisible = false;
+
+  Future<void> _handleSignup() async {
+    if (_formKey.currentState?.saveAndValidate() ?? false) {
+      final formData = _formKey.currentState!.value;
+      try {
+        await _authController.signUp(
+          SignUpRequest(
+            firstName: formData['first_name'],
+            lastName: formData['last_name'],
+            email: formData['email'],
+            password: formData['password'],
+            phoneNumber: formData['phone_number'],
+          ),
+          context,
+        );
+        if (_authController.currentUser.value != null) {
+          Get.offAllNamed('/home');
+        }
+      } catch (e) {
+        Get.snackbar(
+          'Error',
+          e.toString(),
+          snackPosition: SnackPosition.BOTTOM,
+        );
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return WillPopScope(
       onWillPop: () async {
-        context.pop();
+        context.goToGetStart();
         return false;
       },
       child: Scaffold(
@@ -39,7 +68,7 @@ class _SignupScreenState extends State<SignupScreen> {
             child: _isDeviceHelper.isDevicesIosAndroidIcons(
               iconIos: const Icon(Icons.arrow_back, color: AppColors.black),
               iconAndroid: const Icon(Icons.arrow_back_ios, color: AppColors.black),
-              onPressed: () => context.pushToGetStart(),
+              onPressed: () => Get.offAllNamed('/get-started'),
             ),
           ),
         ),
@@ -114,6 +143,7 @@ class _SignupScreenState extends State<SignupScreen> {
                                   CustomFormBuilderTextField(
                                     name: 'phone_number',
                                     label: 'Phone Number',
+                                    inputType: TextInputType.phone,
                                     validators: [
                                       FormBuilderValidators.required(errorText: 'Phone Number is required'),
                                     ],
@@ -129,15 +159,51 @@ class _SignupScreenState extends State<SignupScreen> {
                                     ],
                                   ),
                                   SizedBox(height: AppStyle.deviceHeight(context) * 0.03),
-                                  CustomFormBuilderTextField(
-                                    name: 'password',
-                                    label: 'Password',
-                                    isPassword: true,
-
-                                    validators: [
-                                      FormBuilderValidators.required(errorText: 'Password is required'),
-                                      FormBuilderValidators.minLength(6, errorText: 'Minimum 6 characters'),
-                                    ],
+                                  Container(
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(8),
+                                      boxShadow: [
+                                        BoxShadow(
+                                          color: Colors.black.withOpacity(0.05),
+                                          blurRadius: 6,
+                                          offset: const Offset(0, 2),
+                                        ),
+                                      ],
+                                    ),
+                                    child: FormBuilderTextField(
+                                      name: 'password',
+                                      decoration: InputDecoration(
+                                        labelText: 'Password',
+                                        filled: true,
+                                        fillColor: Colors.white,
+                                        border: OutlineInputBorder(
+                                          borderRadius: BorderRadius.circular(8),
+                                          borderSide: BorderSide.none,
+                                        ),
+                                        contentPadding: const EdgeInsets.symmetric(
+                                          horizontal: 16,
+                                          vertical: 14,
+                                        ),
+                                        suffixIcon: IconButton(
+                                          onPressed: () {
+                                            setState(() {
+                                              _isPasswordVisible = !_isPasswordVisible;
+                                            });
+                                          },
+                                          icon: Icon(
+                                            _isPasswordVisible
+                                                ? Icons.visibility
+                                                : Icons.visibility_off,
+                                            color: Colors.grey[600],
+                                          ),
+                                        ),
+                                      ),
+                                      obscureText: !_isPasswordVisible,
+                                      validator: FormBuilderValidators.compose([
+                                        FormBuilderValidators.required(errorText: 'Password is required'),
+                                        FormBuilderValidators.minLength(6, errorText: 'Minimum 6 characters'),
+                                      ]),
+                                    ),
                                   ),
                                 ],
                               ),
@@ -146,20 +212,16 @@ class _SignupScreenState extends State<SignupScreen> {
                             SizedBox(
                               width: double.infinity,
                               height: 50,
-                              child: CustomButtonWidget(
+                              child: Obx(() => CustomButtonWidget(
                                 backgroundColor: AppColors.brightSkyBlue,
                                 textColor: AppColors.white,
-                                buttonText: "Next",
-                                onPressed: () async {
-                                  if (_formKey.currentState?.saveAndValidate() ?? false) {
-                                    final formData = _formKey.currentState!.value;
-                                    await _authControllers.signupAccount(formData);
-                                    context.goToHome();
-                                  }else{
-                                    context.pushToSignup();
-                                  }
-                                },
-                              ).buildButton(),
+                                buttonText: _authController.isLoading.value
+                                    ? "Loading..."
+                                    : "Next",
+                                onPressed: _authController.isLoading.value
+                                    ? null
+                                    : _handleSignup,
+                              ).buildButton()),
                             ),
                           ],
                         ),
@@ -167,7 +229,7 @@ class _SignupScreenState extends State<SignupScreen> {
                           padding: const EdgeInsets.only(bottom: 50),
                           alignment: Alignment.center,
                           child: GestureDetector(
-                            onTap: () => context.pushToLogin(),
+                            onTap: () => Get.offAllNamed('/login'),
                             child: RichText(
                               text: TextSpan(
                                 text: "Already have an account? ",
