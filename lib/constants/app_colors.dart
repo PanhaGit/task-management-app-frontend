@@ -21,4 +21,8 @@ class AppColors {
 
   // color use Click Calender
   static const Color pink = Color(0xFFFF90BB);
+
+  static const successColor = Color(0xFF328E6E);
+  static const errorColor = Color(0xFFCB0404);
+  static const infoColor = Color(0xFF1B56FD);
 }

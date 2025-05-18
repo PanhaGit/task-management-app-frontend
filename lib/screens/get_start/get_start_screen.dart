@@ -77,7 +77,7 @@ class GetStartScreen extends StatelessWidget {
                   ).buildButton(),
                 ),
               ),
-              SizedBox(height: AppStyle.deviceHeight(context) * 0.30),
+              SizedBox(height: AppStyle.deviceHeight(context) * 0.26),
             ],
           ),
         ),

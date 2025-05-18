@@ -1,10 +1,11 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:frontend_app_task/router/app_router.dart';
 import 'package:frontend_app_task/env.dart';
+import 'package:go_router/go_router.dart';
 import 'package:package_info_plus/package_info_plus.dart';
-import '../constants/app_style.dart';
 import '../constants/app_colors.dart';
+import '../constants/app_style.dart';
+
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
 
@@ -15,11 +16,12 @@ class SplashScreen extends StatefulWidget {
 class _SplashScreenState extends State<SplashScreen> {
   String _version = '';
   late Timer _timer;
+
   @override
   void initState() {
     super.initState();
-    _timeSplashScreen();
     _initPackageInfo();
+    _startSplashTimer();
   }
 
   Future<void> _initPackageInfo() async {
@@ -29,14 +31,13 @@ class _SplashScreenState extends State<SplashScreen> {
     });
   }
 
-  Future<void> _timeSplashScreen()async {
-    _timer = await Timer(const Duration(seconds: 3),(){
-      if(mounted){
-       context.pushToHome();
+  void _startSplashTimer() {
+    _timer = Timer(const Duration(seconds: 2), () {
+      if (mounted) {
+        context.go('/');
       }
     });
   }
-
 
   @override
   void dispose() {
@@ -55,8 +56,8 @@ class _SplashScreenState extends State<SplashScreen> {
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
             colors: [
-              Color(0xFF9AD4FF), // Top color
-              Color(0xFFD9EBFF), // Bottom color
+              Color(0xFF9AD4FF),
+              Color(0xFFD9EBFF),
             ],
           ),
         ),
@@ -71,7 +72,6 @@ class _SplashScreenState extends State<SplashScreen> {
               ),
             ),
             const SizedBox(height: 20),
-
             const Spacer(),
             Padding(
               padding: const EdgeInsets.only(bottom: 20),
@@ -84,7 +84,8 @@ class _SplashScreenState extends State<SplashScreen> {
                   if (_version.isNotEmpty)
                     Text(
                       "App Version $_version",
-                      style: const TextStyle(fontSize: 12,  color: AppColors.black),
+                      style:
+                      const TextStyle(fontSize: 12, color: AppColors.black),
                     ),
                   const Text(
                     "Team PLRS",
@@ -92,7 +93,7 @@ class _SplashScreenState extends State<SplashScreen> {
                   ),
                 ],
               ),
-            )
+            ),
           ],
         ),
       ),

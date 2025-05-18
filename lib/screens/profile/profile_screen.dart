@@ -1,49 +1,15 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:frontend_app_task/background_gradient.dart';
 import 'package:frontend_app_task/constants/app_colors.dart';
+import 'package:frontend_app_task/controllers/auth/auth_controllers.dart';
 import 'package:frontend_app_task/router/app_router.dart';
 import 'package:frontend_app_task/wiegtes/custome_button_wiegte.dart';
 import 'package:get/get.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 
 class ProfileScreen extends StatelessWidget {
-  const ProfileScreen({super.key});
-
-  Future<void> _deleteTokens() async {
-    const storage = FlutterSecureStorage();
-    await storage.delete(key: 'access_token');
-    await storage.delete(key: 'refresh_token');
-  }
-
-  Future<void> _handleLogout(BuildContext context) async {
-    try {
-      // Show snackbar first
-      Get.snackbar(
-        'Success',
-        'Logged out successfully',
-        snackPosition: SnackPosition.BOTTOM,
-        duration: const Duration(seconds: 2),
-        animationDuration: const Duration(milliseconds: 300),
-      );
-      // Delete tokens in main thread
-      await _deleteTokens();
-      // Delay to ensure snackbar visibility
-      await Future.delayed(const Duration(seconds: 2));
-      if (context.mounted) {
-        context.goToLogin();
-      }
-    } catch (e) {
-      Get.snackbar(
-        'Error',
-        'Logout failed: $e',
-        snackPosition: SnackPosition.BOTTOM,
-        duration: const Duration(seconds: 3),
-        animationDuration: const Duration(milliseconds: 300),
-      );
-    }
-  }
-
+   ProfileScreen({super.key});
+  final AuthControllers authController = Get.find<AuthControllers>();
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -153,7 +119,9 @@ class ProfileScreen extends StatelessWidget {
                           backgroundColor: AppColors.gray,
                           textColor: AppColors.black,
                           buttonText: "Log out",
-                          onPressed: () => _handleLogout(context),
+                          onPressed: () {
+                            authController.logout(context);
+                          }
                         ).buildButton(),
                       ),
                       SizedBox(height: MediaQuery.of(context).padding.bottom),
