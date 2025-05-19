@@ -226,6 +226,34 @@ class _LoginScreenState extends State<LoginScreen> {
                                 ),
                               ),
                             ),
+
+                            Center(
+                              child: TextButton(
+                                onPressed: () {
+                                  context.pushToSignup(); // Your navigation method
+                                },
+                                child: RichText(
+                                  textAlign: TextAlign.center,
+                                  text: TextSpan(
+                                    text: "Don't have an account? ",
+                                    style: TextStyle(
+                                      color: AppColors.black,
+                                      fontSize: 14,
+                                    ),
+                                    children: [
+                                      TextSpan(
+                                        text: "Sign up",
+                                        style: TextStyle(
+                                          color: AppColors.brightSkyBlue,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            )
+
                           ],
                         ),
                         Container(

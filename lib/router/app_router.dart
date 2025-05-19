@@ -37,9 +37,15 @@ extension AppRouter on BuildContext {
         void pushToProfile() => push('/profile');
 
         // Push for auth routes (use go to avoid stack issues)
-        void pushToLogin() => go('/auth/login');
-        void pushToSignup() => go('/auth/signup');
-        void pushToDOB() => go('/auth/dob');
-        void pushToForgetPass() => go('/auth/forget_password');
-        void pushToGetStart() => go('/get_start');
-        }
+        void pushToLogin() => push('/auth/login');
+        void pushToSignup() => push('/auth/signup');
+        void pushToDOB() => push('/auth/dob');
+        void pushToForgetPass() => push('/auth/forget_password');
+        void pushToGetStart() => push('/get_start');
+
+        /**
+         * Utility Methods
+         * */
+        void popScreen() => pop();
+        void goBack() => canPop() ? pop() : push('/');
+}
