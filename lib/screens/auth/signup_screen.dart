@@ -10,6 +10,7 @@ import 'package:frontend_app_task/util/is_device_helper.dart';
 import 'package:frontend_app_task/wiegtes/custome_button_wiegte.dart';
 import 'package:frontend_app_task/wiegtes/custome_form_builder_text_field.dart';
 import 'package:get/get.dart';
+import 'package:go_router/go_router.dart';
 
 class SignupScreen extends StatefulWidget {
   const SignupScreen({super.key});
@@ -55,7 +56,7 @@ class _SignupScreenState extends State<SignupScreen> {
   Widget build(BuildContext context) {
     return WillPopScope(
       onWillPop: () async {
-        context.goToGetStart();
+        context.goBack();
         return false;
       },
       child: Scaffold(
@@ -68,7 +69,10 @@ class _SignupScreenState extends State<SignupScreen> {
             child: _isDeviceHelper.isDevicesIosAndroidIcons(
               iconIos: const Icon(Icons.arrow_back, color: AppColors.black),
               iconAndroid: const Icon(Icons.arrow_back_ios, color: AppColors.black),
-              onPressed: () => Get.offAllNamed('/get-started'),
+              onPressed: () {
+                context.goBack();
+              },
+
             ),
           ),
         ),
