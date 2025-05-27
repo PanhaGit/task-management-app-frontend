@@ -2,8 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
-import 'package:frontend_app_task/background_gradient.dart';
+import 'package:frontend_app_task/models/Categories.dart';
 import 'package:get/get.dart';
+import 'package:frontend_app_task/background_gradient.dart';
 import 'package:frontend_app_task/controllers/task_controller.dart';
 import 'package:frontend_app_task/constants/app_colors.dart';
 
@@ -26,31 +27,46 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
 
   Future<void> _handleSubmit() async {
     if (_formKey.currentState?.saveAndValidate() ?? false) {
-      final data = _formKey.currentState!.value;
-      final start = data['start_date'] as DateTime;
-      final end = data['end_date'] as DateTime;
+      try {
+        final data = _formKey.currentState!.value;
 
-      final duration = end.difference(start);
-      final hours = duration.inHours;
-      final minutes = duration.inMinutes % 60;
+        final title = data['title']?.toString() ?? '';
+        if (title.isEmpty) throw Exception('Title is required');
 
-      final color = (data['color'] as Color).value.toRadixString(16).padLeft(8, '0');
+        final start = data['start_date'] as DateTime;
+        final end = data['end_date'] as DateTime;
 
-      final payload = {
-        "title": data['title'],
-        "description": data['description'],
-        "start_date": start.toIso8601String(),
-        "end_date": end.toIso8601String(),
-        "category_id": data['category_id'],
-        "hours": hours,
-        "minutes": minutes,
-        "color": "#$color",
-      };
+        if (end.isBefore(start)) {
+          throw Exception('End date must be after start date');
+        }
 
-      final success = await _taskController.postNewTask(payload);
-      if (success && mounted) {
-        await Future.delayed(const Duration(milliseconds: 500));
-        Get.back();
+        final categoryId = data['category_id'];
+        final duration = end.difference(start);
+        final hours = duration.inHours;
+        final minutes = duration.inMinutes % 60;
+
+        final payload = {
+          "title": title,
+          "description": data['description']?.toString() ?? '',
+          "start_date": start.toUtc().toIso8601String(),
+          "end_date": end.toUtc().toIso8601String(),
+          "category_id": categoryId,
+          "duration": {
+            "hours": hours,
+            "minutes": minutes,
+          },
+        };
+
+        print("Submitting payload: $payload");
+
+        final success = await _taskController.createTask(payload);
+        if (success && mounted) {
+          _formKey.currentState?.reset();
+          Get.back(result: true);
+        }
+      } catch (e) {
+        print(e);
+        // Handle error (show snackbar or other UI feedback)
       }
     }
   }
@@ -62,7 +78,7 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
         backgroundColor: AppColors.white,
         title: const Center(
           child: Text(
-            "Add Project",
+            "Create New Task",
             style: TextStyle(fontWeight: FontWeight.w500),
           ),
         ),
@@ -83,11 +99,26 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                       _addTaskForm(),
                       const SizedBox(height: 24),
                       Obx(() {
-                        return _taskController.isLoading.value
-                            ? const CircularProgressIndicator()
-                            : ElevatedButton(
-                          onPressed: _handleSubmit,
-                          child: const Text("Submit Task"),
+                        return ElevatedButton.icon(
+                          onPressed: _taskController.isLoading.value
+                              ? null
+                              : _handleSubmit,
+                          icon: _taskController.isLoading.value
+                              ? const SizedBox(
+                            height: 20,
+                            width: 20,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: Colors.white,
+                            ),
+                          )
+                              : const Icon(Icons.check),
+                          label: const Text("Submit Task"),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppColors.brightSkyBlue,
+                            elevation: 0,
+                            minimumSize: const Size(double.infinity, 50),
+                          ),
                         );
                       }),
                     ],
@@ -117,145 +148,72 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
           children: [
             FormBuilderTextField(
               name: 'title',
-              style: const TextStyle(color: Colors.black),
               decoration: const InputDecoration(
                 labelText: 'Title',
-                enabledBorder: UnderlineInputBorder(
-                  borderSide: BorderSide(color: Colors.black),
-                ),
-                focusedBorder: UnderlineInputBorder(
-                  borderSide: BorderSide(color: Colors.blue, width: 2),
-                ),
+                border: OutlineInputBorder(),
+                helperText: 'Enter the task title',
               ),
-              validator: FormBuilderValidators.required(errorText: 'Title is required'),
+              validator: FormBuilderValidators.compose([
+                FormBuilderValidators.required(),
+                FormBuilderValidators.maxLength(100),
+              ]),
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 16),
             FormBuilderTextField(
               name: 'description',
-              style: const TextStyle(color: Colors.black),
+              maxLines: 3,
               decoration: const InputDecoration(
                 labelText: 'Description',
-                enabledBorder: UnderlineInputBorder(
-                  borderSide: BorderSide(color: Colors.black),
-                ),
-                focusedBorder: UnderlineInputBorder(
-                  borderSide: BorderSide(color: Colors.blue, width: 2),
-                ),
+                border: OutlineInputBorder(),
+                helperText: 'Enter the task description',
               ),
-              validator: FormBuilderValidators.required(errorText: 'Description is required'),
+              validator: FormBuilderValidators.compose([
+                FormBuilderValidators.required(),
+                FormBuilderValidators.maxLength(500),
+              ]),
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 16),
             FormBuilderDateTimePicker(
-              name: "start_date",
-              inputType: InputType.both,
+              name: 'start_date',
               decoration: const InputDecoration(
                 labelText: 'Start Date',
-                enabledBorder: UnderlineInputBorder(
-                  borderSide: BorderSide(color: Colors.black),
-                ),
-                focusedBorder: UnderlineInputBorder(
-                  borderSide: BorderSide(color: Colors.blue, width: 2),
-                ),
+                border: OutlineInputBorder(),
+                helperText: 'Pick the date and time the task starts',
               ),
-              validator: FormBuilderValidators.required(errorText: 'Start date is required'),
-            ),
-            const SizedBox(height: 20),
-            FormBuilderDateTimePicker(
-              name: "end_date",
               inputType: InputType.both,
+              validator: FormBuilderValidators.required(),
+              initialValue: DateTime.now(),
+            ),
+            const SizedBox(height: 16),
+            FormBuilderDateTimePicker(
+              name: 'end_date',
               decoration: const InputDecoration(
                 labelText: 'End Date',
-                enabledBorder: UnderlineInputBorder(
-                  borderSide: BorderSide(color: Colors.black),
-                ),
-                focusedBorder: UnderlineInputBorder(
-                  borderSide: BorderSide(color: Colors.blue, width: 2),
-                ),
+                border: OutlineInputBorder(),
+                helperText: 'Pick the date and time the task ends',
               ),
-              validator: FormBuilderValidators.required(errorText: 'End date is required'),
+              inputType: InputType.both,
+              validator: FormBuilderValidators.required(),
+              initialValue: DateTime.now().add(const Duration(hours: 1)),
             ),
-            const SizedBox(height: 20),
-            FormBuilderDropdown<String>(
+            const SizedBox(height: 16),
+            // 👇 Add this dropdown for category selection
+            FormBuilderDropdown(
               name: 'category_id',
               decoration: const InputDecoration(
-                labelText: 'Select Category',
-                enabledBorder: UnderlineInputBorder(
-                  borderSide: BorderSide(color: Colors.black),
-                ),
-                focusedBorder: UnderlineInputBorder(
-                  borderSide: BorderSide(color: Colors.blue, width: 2),
-                ),
+                labelText: 'Category',
+                border: OutlineInputBorder(),
+                helperText: 'Select a category for the task',
               ),
+              validator: FormBuilderValidators.required(),
               items: _taskController.categories
-                  .map((cat) => DropdownMenuItem<String>(
+                  .map((cat) => DropdownMenuItem(
                 value: cat.id,
                 child: Text(cat.title),
               ))
                   .toList(),
-              validator: FormBuilderValidators.required(errorText: 'Please select a category'),
             ),
-            const SizedBox(height: 20),
-            // Custom color picker field:
-            FormBuilderField<Color>(
-              name: 'color',
-              initialValue: Colors.blue,
-              validator: FormBuilderValidators.required(errorText: 'Please choose a color'),
-              builder: (FormFieldState<Color?> field) {
-                return InputDecorator(
-                  decoration: const InputDecoration(
-                    labelText: 'Choose Task Color',
-                    enabledBorder: UnderlineInputBorder(
-                      borderSide: BorderSide(color: Colors.black),
-                    ),
-                    focusedBorder: UnderlineInputBorder(
-                      borderSide: BorderSide(color: Colors.blue, width: 2),
-                    ),
-                  ),
-                  child: GestureDetector(
-                    onTap: () async {
-                      Color selectedColor = field.value ?? Colors.blue;
-
-                      await showDialog(
-                        context: context,
-                        builder: (context) {
-                          return AlertDialog(
-                            title: const Text('Pick a color'),
-                            content: SingleChildScrollView(
-                              child: BlockPicker(
-                                pickerColor: selectedColor,
-                                onColorChanged: (color) {
-                                  selectedColor = color;
-                                },
-                              ),
-                            ),
-                            actions: [
-                              TextButton(
-                                onPressed: () {
-                                  Navigator.of(context).pop();
-                                  field.didChange(selectedColor);
-                                },
-                                child: const Text('Select'),
-                              ),
-                            ],
-                          );
-                        },
-                      );
-                    },
-                    child: Container(
-                      height: 50,
-                      color: field.value ?? Colors.transparent,
-                      alignment: Alignment.center,
-                      child: Text(
-                        field.value != null ? 'Color Selected' : 'Tap to pick a color',
-                        style: TextStyle(
-                          color: field.value != null ? Colors.white : Colors.black,
-                        ),
-                      ),
-                    ),
-                  ),
-                );
-              },
-            ),
+            const SizedBox(height: 16),
           ],
         ),
       );

@@ -1,32 +1,56 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:frontend_app_task/services/firebase_notification/notification_services.dart';
+import 'package:get/get.dart';
 import 'package:frontend_app_task/constants/app_colors.dart';
 import 'package:frontend_app_task/controllers/auth/auth_controllers.dart';
 import 'package:frontend_app_task/controllers/home_controller.dart';
 import 'package:frontend_app_task/controllers/task_controller.dart';
-import 'package:frontend_app_task/router/routes.dart';
-import 'package:frontend_app_task/services/firebase_notification/notification_services.dart';
-import 'package:get/get.dart';
 import 'package:frontend_app_task/controllers/notification_controller.dart';
+import 'package:frontend_app_task/router/routes.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 
-void main() async {
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp();
 
-  CachedNetworkImage.logLevel = CacheManagerLogLevel.debug;
+  try {
+    // Initialize Firebase
+    await Firebase.initializeApp();
 
-  // Initialize GetX controllers
+    // Configure cached network image
+    CachedNetworkImage.logLevel = CacheManagerLogLevel.debug;
+
+    // Initialize controllers in proper order
+    _initializeControllers();
+
+    // Run the app
+    runApp(const MongKolApp());
+  } catch (e) {
+    // Fallback UI if initialization fails
+    runApp(
+      MaterialApp(
+        home: Scaffold(
+          body: Center(
+            child: Text('Initialization failed: ${e.toString()}'),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+void _initializeControllers() {
+  // First register NotificationController
+  Get.put(NotificationController());
+
+  // Then register NotificationServices and initialize
+  final notificationService = Get.put(NotificationServices());
+  notificationService.initialize(); // Use the consolidated initialize method
+
+  // Register other controllers
   Get.put(AuthControllers());
   Get.put(HomeController());
   Get.put(TaskController());
-  Get.put(NotificationController());
-
-  // Initialize Firebase notification permissions
-  final notificationService = NotificationServices();
-  notificationService.requestNotificationPermission();
-
-  runApp( MongKolApp());
 }
 
 class MongKolApp extends StatelessWidget {
@@ -36,10 +60,10 @@ class MongKolApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp.router(
       debugShowCheckedModeBanner: false,
+      title: "Mong Kol App Task",
       theme: ThemeData(
         scaffoldBackgroundColor: AppColors.white,
       ),
-      title: "Mong Kol App Task",
       routerConfig: Routes.router,
     );
   }

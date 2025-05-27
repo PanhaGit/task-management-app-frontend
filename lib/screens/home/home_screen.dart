@@ -70,8 +70,8 @@ class HomeScreen extends StatelessWidget {
           CircleAvatar(
             radius: 20,
             backgroundColor: Colors.grey[200],
-            backgroundImage: user != null
-                ? const NetworkImage('https://via.placeholder.com/150')
+            backgroundImage: user?.imageProfile != null
+                ? NetworkImage(user!.imageProfile!)
                 : null,
             child: user == null
                 ? const Icon(Icons.person, color: Colors.white)
@@ -236,7 +236,7 @@ class HomeScreen extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    task.category.title,
+                    task.categories.title,
                     style: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,

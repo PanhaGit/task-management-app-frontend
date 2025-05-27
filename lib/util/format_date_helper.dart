@@ -1,5 +1,6 @@
 import 'package:intl/intl.dart';
-
+import 'package:timezone/data/latest.dart' as tz;
+import 'package:timezone/timezone.dart' as tz;
 
 /**
  * @author: Tho Panha
@@ -8,21 +9,31 @@ import 'package:intl/intl.dart';
  * */
 
 class FormatDateHelper {
-
-  //  'dd/MM/yyyy' format
-  Future<String> dateFormatDOB(DateTime date) async {
-    final DateFormat formatter = DateFormat('dd/MM/yyyy');
+  /// Format Date of Birth: dd/MM/yyyy
+  String formatDateDOB(DateTime date) {
+    final formatter = DateFormat('dd/MM/yyyy');
     return formatter.format(date);
   }
 
-
-  // April 2025
-  Future<String> dateFormMonthAndYear(DateTime date) async {
-    final DateFormat formatter = DateFormat("MMMM y");
+  /// Format Month and Year: "MMMM y" (e.g., "May 2025")
+  String formatMonthAndYear(DateTime date) {
+    final formatter = DateFormat('MMMM y', 'km_KH'); // Use Khmer if needed
     return formatter.format(date);
   }
-  // Future<String> dateFormatTime(DateTime time) async{
-  //   final DateFormat formatter = DateFormat('');
-  //   return formatter.format(time);
-  // }
+
+  /// Format time: HH:mm (24-hour format)
+  String formatTimeTask(DateTime time) {
+    final formatter = DateFormat('HH:mm');
+    return formatter.format(time);
+  }
+
+  /// Simple format: dd/MM/yyyy
+  String formatDate(DateTime date) {
+    return '${date.day}/${date.month}/${date.year}';
+  }
+
+  /// Format with day name: EEEE, dd MMM yyyy
+  String formatFullDate(DateTime date) {
+    return DateFormat('EEEE, dd MMM yyyy', 'km_KH').format(date);
+  }
 }

@@ -4,6 +4,7 @@ class SignUpRequest {
   final String email;
   final String password;
   final String phoneNumber;
+  final String fcmToken;
 
   SignUpRequest({
     required this.firstName,
@@ -11,6 +12,7 @@ class SignUpRequest {
     required this.email,
     required this.password,
     required this.phoneNumber,
+    required this.fcmToken,
   });
 
   Map<String, dynamic> toJson() => {
@@ -19,21 +21,25 @@ class SignUpRequest {
     'email': email,
     'password': password,
     'phone_number': phoneNumber,
+    'fcmTokens': fcmToken, // Match backend field
   };
 }
 
 class LoginRequest {
   final String email;
   final String password;
+  final String fcmToken;
 
   LoginRequest({
     required this.email,
     required this.password,
+    required this.fcmToken,
   });
 
   Map<String, dynamic> toJson() => {
     'email': email,
     'password': password,
+    'fcmTokens': fcmToken,
   };
 }
 
@@ -63,6 +69,8 @@ class User {
   final String lastName;
   final String email;
   final String phoneNumber;
+  final String imageProfile;
+  final String imageCover;
 
   User({
     required this.id,
@@ -70,6 +78,8 @@ class User {
     required this.lastName,
     required this.email,
     required this.phoneNumber,
+    required this.imageProfile,
+    required this.imageCover,
   });
 
   factory User.fromJson(Map<String, dynamic> json) {
@@ -79,6 +89,8 @@ class User {
       lastName: json['last_name'] ?? '',
       email: json['email'] ?? '',
       phoneNumber: json['phone_number'] ?? '',
+      imageProfile: json['image_profile'] ?? '',
+      imageCover: json['image_cover'] ?? '',
     );
   }
 
@@ -88,6 +100,8 @@ class User {
     'last_name': lastName,
     'email': email,
     'phone_number': phoneNumber,
+    'image_profile': imageProfile,
+    'image_cover': imageCover,
   };
 
   String get fullName => '$firstName $lastName';
