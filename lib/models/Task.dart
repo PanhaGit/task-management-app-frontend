@@ -1,13 +1,21 @@
-/// Flutter data model for parsing the task response from JSON
+
+
+
+import 'Categories.dart';
+
 ///
-/// @author Tho Panha
+/// Author: Tho Panha
 
 class TaskResponse {
   final bool success;
   final List<Task> data;
   final String message;
 
-  TaskResponse({required this.success, required this.data, required this.message});
+  TaskResponse({
+    required this.success,
+    required this.data,
+    required this.message,
+  });
 
   factory TaskResponse.fromJson(Map<String, dynamic> json) {
     return TaskResponse(
@@ -28,7 +36,7 @@ class Task {
   final int hours;
   final int minutes;
   final CreatedBy createdBy;
-  final Category category;
+  final Categories categories;
   final DateTime createdAt;
   final DateTime updatedAt;
 
@@ -42,29 +50,31 @@ class Task {
     required this.hours,
     required this.minutes,
     required this.createdBy,
-    required this.category,
+    required this.categories,
     required this.createdAt,
     required this.updatedAt,
   });
 
   factory Task.fromJson(Map<String, dynamic> json) {
     return Task(
-      id: json['_id'],
-      title: json['title'],
-      description: json['description'],
-      status: json['status'],
+      id: json['_id'] ?? '',
+      title: json['title'] ?? '',
+      description: json['description'] ?? '',
+      status: json['status'] ?? '',
       startDate: DateTime.parse(json['start_date']),
       endDate: DateTime.parse(json['end_date']),
-      hours: json['hours'],
-      minutes: json['minutes'],
-      createdBy: CreatedBy.fromJson(json['created_by']),
-      category: Category.fromJson(json['category_id']),
+      hours: json['duration']?['hours'] ?? 0,  // Changed from json['hours']
+      minutes: json['duration']?['minutes'] ?? 0,  // Changed from json['minutes']
+      createdBy: json['created_by'] != null
+          ? CreatedBy.fromJson(json['created_by'])
+          : CreatedBy.empty(),
+      categories: json['category'] != null  // Changed from json['category_id']
+          ? Categories.fromJson(json['category'])
+          : Categories.empty(),
       createdAt: DateTime.parse(json['createdAt']),
       updatedAt: DateTime.parse(json['updatedAt']),
     );
   }
-
-  /// Factory constructor for an empty Task instance
   factory Task.empty() {
     return Task(
       id: '',
@@ -76,7 +86,7 @@ class Task {
       hours: 0,
       minutes: 0,
       createdBy: CreatedBy.empty(),
-      category: Category.empty(),
+      categories: Categories.empty(),
       createdAt: DateTime.now(),
       updatedAt: DateTime.now(),
     );
@@ -100,15 +110,14 @@ class CreatedBy {
 
   factory CreatedBy.fromJson(Map<String, dynamic> json) {
     return CreatedBy(
-      id: json['_id'],
-      firstName: json['first_name'],
-      lastName: json['last_name'],
-      phoneNumber: json['phone_number'],
-      email: json['email'],
+      id: json['_id'] ?? '',
+      firstName: json['first_name'] ?? '',
+      lastName: json['last_name'] ?? '',
+      phoneNumber: json['phone_number'] ?? '',
+      email: json['email'] ?? '',
     );
   }
 
-  /// Factory constructor for an empty CreatedBy instance
   factory CreatedBy.empty() {
     return CreatedBy(
       id: '',
@@ -116,28 +125,6 @@ class CreatedBy {
       lastName: '',
       phoneNumber: '',
       email: '',
-    );
-  }
-}
-
-class Category {
-  final String id;
-  final String title;
-
-  Category({required this.id, required this.title});
-
-  factory Category.fromJson(Map<String, dynamic> json) {
-    return Category(
-      id: json['_id'],
-      title: json['title'],
-    );
-  }
-
-  /// Factory constructor for an empty Category instance
-  factory Category.empty() {
-    return Category(
-      id: '',
-      title: '',
     );
   }
 }

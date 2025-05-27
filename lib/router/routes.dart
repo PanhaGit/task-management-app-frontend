@@ -1,18 +1,19 @@
 import 'package:flutter/material.dart';
+
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:frontend_app_task/controllers/auth/auth_controllers.dart';
 import 'package:frontend_app_task/main_screen.dart';
 import 'package:frontend_app_task/screens/add_task/add_task_screen.dart';
 import 'package:frontend_app_task/screens/auth/date_of_brithday_screen.dart';
+import 'package:frontend_app_task/screens/auth/forget_password_screen.dart';
+import 'package:frontend_app_task/screens/auth/login_screen.dart';
+import 'package:frontend_app_task/screens/auth/signup_screen.dart';
 import 'package:frontend_app_task/screens/calendar/calendar_screen.dart';
 import 'package:frontend_app_task/screens/get_start/get_start_screen.dart';
 import 'package:frontend_app_task/screens/home/home_screen.dart';
 import 'package:frontend_app_task/screens/notification/notification_screen.dart';
 import 'package:frontend_app_task/screens/profile/profile_screen.dart';
 import 'package:frontend_app_task/screens/splash_screen.dart';
-import 'package:frontend_app_task/screens/auth/login_screen.dart';
-import 'package:frontend_app_task/screens/auth/signup_screen.dart';
-import 'package:frontend_app_task/screens/auth/forget_password_screen.dart';
-import 'package:frontend_app_task/controllers/auth/auth_controllers.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:go_router/go_router.dart';
 import 'package:get/get.dart';
 

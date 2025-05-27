@@ -7,6 +7,7 @@ import 'package:frontend_app_task/controllers/auth/auth_controllers.dart';
 import 'package:frontend_app_task/env.dart';
 import 'package:frontend_app_task/models/auth/auth.dart';
 import 'package:frontend_app_task/router/app_router.dart';
+import 'package:frontend_app_task/services/firebase_notification/notification_services.dart';
 import 'package:frontend_app_task/util/is_device_helper.dart';
 import 'package:frontend_app_task/wiegtes/custome_button_wiegte.dart';
 import 'package:get/get.dart';
@@ -27,11 +28,16 @@ class _LoginScreenState extends State<LoginScreen> {
   Future<void> _handleLogin() async {
     if (_formKey.currentState?.saveAndValidate() ?? false) {
       final formData = _formKey.currentState!.value;
+      final fcmToken = await NotificationServices().getDeviceToken();
+      if (fcmToken == null) {
+        throw Exception('Could not get device token');
+      }
       try {
         await _authController.login(
           LoginRequest(
             email: formData['email'],
             password: formData['password'],
+            fcmToken: fcmToken
           ),
           context,
         );

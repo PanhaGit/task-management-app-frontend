@@ -6,6 +6,7 @@ import 'package:frontend_app_task/constants/app_style.dart';
 import 'package:frontend_app_task/controllers/auth/auth_controllers.dart';
 import 'package:frontend_app_task/models/auth/auth.dart';
 import 'package:frontend_app_task/router/app_router.dart';
+import 'package:frontend_app_task/services/firebase_notification/notification_services.dart';
 import 'package:frontend_app_task/util/is_device_helper.dart';
 import 'package:frontend_app_task/wiegtes/custome_button_wiegte.dart';
 import 'package:frontend_app_task/wiegtes/custome_form_builder_text_field.dart';
@@ -28,6 +29,10 @@ class _SignupScreenState extends State<SignupScreen> {
   Future<void> _handleSignup() async {
     if (_formKey.currentState?.saveAndValidate() ?? false) {
       final formData = _formKey.currentState!.value;
+      final fcmToken = await NotificationServices().getDeviceToken();
+      if (fcmToken == null) {
+        throw Exception('Could not get device token');
+      }
       try {
         await _authController.signUp(
           SignUpRequest(
@@ -36,18 +41,19 @@ class _SignupScreenState extends State<SignupScreen> {
             email: formData['email'],
             password: formData['password'],
             phoneNumber: formData['phone_number'],
+            fcmToken: fcmToken
           ),
           context,
         );
         if (_authController.currentUser.value != null) {
-          Get.offAllNamed('/home');
+         context.pushToHome();
         }
       } catch (e) {
-        Get.snackbar(
-          'Error',
-          e.toString(),
-          snackPosition: SnackPosition.BOTTOM,
-        );
+        // Get.snackbar(
+        //   'Error',
+        //   e.toString(),
+        //   snackPosition: SnackPosition.BOTTOM,
+        // );
       }
     }
   }
