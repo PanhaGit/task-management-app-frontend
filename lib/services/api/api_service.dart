@@ -17,7 +17,7 @@ class ApiService {
       receiveTimeout: Duration(milliseconds: receiveTimeout),
       sendTimeout: Duration(milliseconds: sendTimeout),
       headers: {
-        'Content-Type': 'application/json', // Default header for all requests
+        'Content-Type': 'application/json',
         'Accept': 'application/json',
       },
     );

@@ -65,23 +65,19 @@ class HomeScreen extends StatelessWidget {
   Widget _buildUserGreeting() {
     return Obx(() {
       final user = authController.currentUser.value;
+      final imageUrl = user?.imageProfile;
+
       return Row(
         children: [
           CircleAvatar(
             radius: 20,
             backgroundColor: Colors.grey[200],
-            backgroundImage: user?.imageProfile != null
-                ? NetworkImage(user!.imageProfile!)
+            backgroundImage: (imageUrl != null && imageUrl.isNotEmpty)
+                ? NetworkImage(imageUrl)
                 : null,
-            child: user == null
+            child: (imageUrl == null || imageUrl.isEmpty)
                 ? const Icon(Icons.person, color: Colors.white)
-                : Text(
-              '${user.firstName[0]}${user.lastName[0]}',
-              style: const TextStyle(
-                color: Colors.black,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
+                : null,
           ),
           const SizedBox(width: 10),
           Flexible(
@@ -181,7 +177,6 @@ class HomeScreen extends StatelessWidget {
     });
   }
 
-  // This builds a card for EACH task, regardless of category
   Widget _buildTaskCards() {
     return Obx(() {
       if (homeController.isLoading.value) {
@@ -211,15 +206,15 @@ class HomeScreen extends StatelessWidget {
       }
 
       return Column(
-        children: homeController.tasks
-            .map((task) => _buildTaskCard(task))
-            .toList(),
+        children:
+        homeController.tasks.map((task) => _buildTaskCard(task)).toList(),
       );
     });
   }
 
   Widget _buildTaskCard(Task task) {
     return Container(
+      margin: const EdgeInsets.only(bottom: 12),
       child: Card(
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12),
