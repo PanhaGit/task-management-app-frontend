@@ -24,15 +24,16 @@ class _NotificationScreenState extends State<NotificationScreen> {
 
   Future<void> _initializeNotifications() async {
     debugPrint("Initializing notifications");
-    _notificationServices.requestNotificationPermission();
-    _notificationServices.firebaseInit();
+    // Initialize Firebase and local notifications
+    await _notificationServices.initialize();
     final token = await _notificationServices.getDeviceToken();
     debugPrint("🔐 Token: $token");
   }
 
   @override
   Widget build(BuildContext context) {
-    debugPrint("Building NotificationScreen with ${_notificationController.notifications.length} notifications");
+    debugPrint(
+        "Building NotificationScreen with ${_notificationController.notifications.length} notifications");
     return Scaffold(
       appBar: AppBar(
         title: const Text("Notifications"),
@@ -58,7 +59,9 @@ class _NotificationScreenState extends State<NotificationScreen> {
 
         return RefreshIndicator(
           onRefresh: () async {
-
+            debugPrint("Refreshing notifications");
+            // Simulate a refresh (replace with actual logic if needed)
+            await Future.delayed(const Duration(seconds: 1));
           },
           child: ListView.builder(
             itemCount: _notificationController.notifications.length,
@@ -88,7 +91,10 @@ class _NotificationScreenState extends State<NotificationScreen> {
                     ],
                   ),
                   onTap: () {
-                    // Handle notification tap
+                    // Mark notification as read and handle tap
+                    _notificationController.markAsRead();
+                    // Add navigation logic here if needed
+                    // Example: Get.toNamed('/task_details', arguments: {'task_id': notification.data['task_id']});
                   },
                 ),
               );

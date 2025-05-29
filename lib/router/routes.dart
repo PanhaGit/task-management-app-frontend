@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:frontend_app_task/controllers/auth/auth_controllers.dart';
 import 'package:frontend_app_task/main_screen.dart';
@@ -121,7 +120,7 @@ class Routes {
                 name: 'notification',
                 pageBuilder: (context, state) => MaterialPage(
                   key: state.pageKey,
-                  child: const NotificationScreen(),
+                  child:  NotificationScreen(),
                 ),
               ),
             ],
