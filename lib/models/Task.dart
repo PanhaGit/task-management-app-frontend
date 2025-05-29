@@ -65,8 +65,8 @@ class Task {
       createdBy: json['created_by'] != null
           ? CreatedBy.fromJson(json['created_by'])
           : CreatedBy.empty(),
-      categories: json['category'] != null  // Changed from json['category_id']
-          ? Categories.fromJson(json['category'])
+      categories: json['category_id'] != null  // Changed from json['category_id']
+          ? Categories.fromJson(json['category_id'])
           : Categories.empty(),
       createdAt: DateTime.parse(json['createdAt']),
       updatedAt: DateTime.parse(json['updatedAt']),

@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:frontend_app_task/constants/app_colors.dart';
+import 'package:frontend_app_task/util/format_date_helper.dart';
 import 'package:get/get.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:frontend_app_task/background_gradient.dart';
@@ -11,7 +13,7 @@ class HomeScreen extends StatelessWidget {
   final HomeController homeController = Get.find<HomeController>();
   final AuthControllers authController = Get.find<AuthControllers>();
   final RefreshController refreshController = RefreshController();
-
+  final formatDateHelper = FormatDateHelper();
   HomeScreen({super.key});
 
   @override
@@ -213,6 +215,18 @@ class HomeScreen extends StatelessWidget {
   }
 
   Widget _buildTaskCard(Task task) {
+    // Convert hex string to Color
+    Color _getColorFromHex(String hexColor) {
+      hexColor = hexColor.replaceAll('#', '');
+      if (hexColor.length == 6) {
+        hexColor = 'FF$hexColor'; // add alpha if not present
+      }
+      return Color(int.parse(hexColor, radix: 16));
+    }
+
+    // Get color from task category
+    final backgroundColor = _getColorFromHex(task.categories.color);
+
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       child: Card(
@@ -220,13 +234,13 @@ class HomeScreen extends StatelessWidget {
           borderRadius: BorderRadius.circular(12),
         ),
         elevation: 0,
-        color: Colors.white,
+        color: backgroundColor, // ✅ use actual Color object
         child: Padding(
           padding: const EdgeInsets.all(16),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Category
+              // Category and Status
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -238,14 +252,13 @@ class HomeScreen extends StatelessWidget {
                     ),
                   ),
                   Container(
-                    padding:
-                    const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                     decoration: BoxDecoration(
-                      color: Colors.blue.withOpacity(0.1),
+                      color: AppColors.brightSkyBlue.withOpacity(0.1),
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Text(
-                      task.status,
+                      task.status.toUpperCase(),
                       style: const TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w500,
@@ -263,6 +276,7 @@ class HomeScreen extends StatelessWidget {
                   fontWeight: FontWeight.w600,
                 ),
               ),
+              Text("Time: ${formatDateHelper.formatTimeTask(task.endDate)} Hours"),
               const SizedBox(height: 8),
               Row(
                 children: [
@@ -283,6 +297,7 @@ class HomeScreen extends StatelessWidget {
       ),
     );
   }
+
 
   Widget _buildDateChip({required IconData icon, required String label}) {
     return Container(
