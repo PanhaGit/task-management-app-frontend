@@ -9,7 +9,7 @@ import 'package:frontend_app_task/controllers/task_controller.dart';
 import 'package:frontend_app_task/controllers/notification_controller.dart';
 import 'package:frontend_app_task/router/routes.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-
+import 'package:flutter_localizations/flutter_localizations.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
@@ -65,6 +65,15 @@ class MongKolApp extends StatelessWidget {
         scaffoldBackgroundColor: AppColors.white,
       ),
       routerConfig: Routes.router,
+      supportedLocales: const [
+        Locale('en'),
+        Locale('kh', 'KH'),
+      ],
+      localizationsDelegates: const [
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
     );
   }
 }

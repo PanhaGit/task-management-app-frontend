@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:frontend_app_task/constants/app_colors.dart';
 import 'package:frontend_app_task/util/format_date_helper.dart';
+import 'package:frontend_app_task/util/helper/helper.dart';
 import 'package:get/get.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:frontend_app_task/background_gradient.dart';
@@ -19,9 +20,8 @@ class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: AppColors.white,
         elevation: 0,
         title: _buildUserGreeting(),
         actions: [_buildNotificationButton()],
@@ -215,17 +215,7 @@ class HomeScreen extends StatelessWidget {
   }
 
   Widget _buildTaskCard(Task task) {
-    // Convert hex string to Color
-    Color _getColorFromHex(String hexColor) {
-      hexColor = hexColor.replaceAll('#', '');
-      if (hexColor.length == 6) {
-        hexColor = 'FF$hexColor'; // add alpha if not present
-      }
-      return Color(int.parse(hexColor, radix: 16));
-    }
 
-    // Get color from task category
-    final backgroundColor = _getColorFromHex(task.categories.color);
 
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
@@ -234,7 +224,7 @@ class HomeScreen extends StatelessWidget {
           borderRadius: BorderRadius.circular(12),
         ),
         elevation: 0,
-        color: backgroundColor, // ✅ use actual Color object
+        color: AppColors.white,
         child: Padding(
           padding: const EdgeInsets.all(16),
           child: Column(
