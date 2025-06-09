@@ -1,27 +1,21 @@
-import 'dart:async';
 import 'dart:convert';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:frontend_app_task/controllers/notification_controller.dart';
+import 'package:get/get.dart';
 import 'package:timezone/data/latest.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
-import 'package:get/get.dart';
 
-/**
- * Comprehensive Notification Service
- * @description Handles all notification-related operations
- * @author: Tho Panha
- */
 class NotificationServices {
   static final NotificationServices _instance = NotificationServices._internal();
   factory NotificationServices() => _instance;
   NotificationServices._internal();
 
   final FirebaseMessaging _firebaseMessaging = FirebaseMessaging.instance;
-  final FlutterLocalNotificationsPlugin _localNotifications = FlutterLocalNotificationsPlugin();
+  final FlutterLocalNotificationsPlugin _localNotifications =
+  FlutterLocalNotificationsPlugin();
 
-  /// Initialize all notification services
   Future<void> initialize() async {
     try {
       await _setupTimezone();
@@ -37,7 +31,7 @@ class NotificationServices {
 
   Future<void> _setupTimezone() async {
     tz.initializeTimeZones();
-    final location = tz.getLocation('Asia/Phnom_Penh'); // Adjust to your time zone
+    final location = tz.getLocation('Asia/Phnom_Penh');
     tz.setLocalLocation(location);
   }
 
@@ -45,8 +39,7 @@ class NotificationServices {
     const AndroidInitializationSettings androidSettings =
     AndroidInitializationSettings('@mipmap/ic_launcher');
 
-    const DarwinInitializationSettings iosSettings =
-    DarwinInitializationSettings(
+    const DarwinInitializationSettings iosSettings = DarwinInitializationSettings(
       requestAlertPermission: true,
       requestBadgePermission: true,
       requestSoundPermission: true,
@@ -79,7 +72,8 @@ class NotificationServices {
     );
 
     await _localNotifications
-        .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>()
+        .resolvePlatformSpecificImplementation<
+        AndroidFlutterLocalNotificationsPlugin>()
         ?.createNotificationChannel(channel);
   }
 
@@ -121,12 +115,8 @@ class NotificationServices {
   Future<void> _handleNotification(RemoteMessage message) async {
     try {
       final controller = Get.find<NotificationController>();
-      controller.addNotification(message);
-
-      // Handle specific notification types
-      if (message.data['eventType'] == 'due_soon') {
-        // Add your custom logic here
-      }
+      controller.addFirebaseNotification(message);
+      debugPrint('Received notification: ${message.notification?.title}');
     } catch (e) {
       debugPrint('Error handling notification: $e');
     }
@@ -214,7 +204,6 @@ class NotificationServices {
           iOS: DarwinNotificationDetails(),
         ),
         androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
-        // uiLocalNotificationDateInterpretation: UILocalNotificationDateInterpretation.absoluteTime,
         matchDateTimeComponents: DateTimeComponents.dateAndTime,
         payload: jsonEncode({
           'task_id': id,
@@ -237,4 +226,3 @@ class NotificationServices {
     }
   }
 }
-
