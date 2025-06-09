@@ -53,3 +53,5 @@ flutter:
   assets:
     - assets/images/
     - assets/icon/
+    - lib/models/
+    - lib/models/auth/
