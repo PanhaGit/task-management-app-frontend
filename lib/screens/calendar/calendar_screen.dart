@@ -1,25 +1,14 @@
-/***
- * Calendar Screen
- *
- * This screen displays a calendar view with tasks timeline.
- * Users can select dates to view tasks for specific days.
- *
- * Features:
- * - Interactive calendar with task indicators
- * - Timeline view of tasks
- * - Date-based task filtering
- * - Pull-to-refresh functionality
- *
- * @author Tho Panha
- */
-
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'package:frontend_app_task/background_gradient.dart';
 import 'package:frontend_app_task/constants/app_colors.dart';
+import 'package:frontend_app_task/controllers/category_controller.dart';
 import 'package:frontend_app_task/controllers/home_controller.dart';
 import 'package:frontend_app_task/models/Task.dart';
 import 'package:frontend_app_task/util/format_date_helper.dart';
 import 'package:frontend_app_task/util/helper/helper.dart';
+import 'package:frontend_app_task/wiegtes/custome_button_wiegte.dart';
 import 'package:intl/intl.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:table_calendar/table_calendar.dart';
@@ -27,48 +16,56 @@ import 'package:timeline_tile/timeline_tile.dart';
 import 'package:get/get.dart';
 
 class CalendarScreen extends StatefulWidget {
-  CalendarScreen({super.key});
+  const CalendarScreen({super.key});
 
   @override
   State<CalendarScreen> createState() => _CalendarScreenState();
 }
 
 class _CalendarScreenState extends State<CalendarScreen> {
-  // State variables
-  DateTime? _selectedDay; // Currently selected day
-  DateTime _focusedDay = DateTime.now(); // Currently focused day in calendar
+  DateTime? _selectedDay;
+  DateTime _focusedDay = DateTime.now();
   final RefreshController _refreshController = RefreshController(initialRefresh: false);
-  final formatDateHelper = FormatDateHelper(); // Date formatting helper
-  final HomeController homeController = Get.find<HomeController>(); // Task controller
+  final FormatDateHelper formatDateHelper = FormatDateHelper();
+  final HomeController homeController = Get.find<HomeController>();
+  final TextEditingController _categoryNameController = TextEditingController();
+  final CategoryController _categoryController = Get.find<CategoryController>();
+  final Rx<Color> currentColor = Rx<Color>(Colors.blue); // Default color
 
-  /***
-   * Handle refresh action
-   * Simulates data refresh with 1 second delay
-   */
+  @override
+  void initState() {
+    super.initState();
+    // Sync initial color with controller after API call
+    _categoryController.getAllColor().then((_) {
+      if (_categoryController.categoryColor.isNotEmpty) {
+        currentColor.value = Color(
+            int.parse(_categoryController.categoryColor[0].hex.replaceFirst('#', '0xff')));
+        _categoryController
+            .changeSelectedColor(_categoryController.categoryColor[0].hex);
+      }
+    });
+  }
+
+  void changeColor(Color color) {
+    currentColor.value = color;
+    _categoryController.changeSelectedColor(
+      '#${color.value.toRadixString(16).padLeft(8, '0').substring(2)}',
+    );
+  }
+
   void _onRefresh() async {
     await Future.delayed(const Duration(milliseconds: 1000));
     _refreshController.refreshCompleted();
   }
 
-  /***
-   * Check if a date has any tasks
-   * @param date - The date to check
-   * @return bool - True if date has tasks
-   */
   bool _hasTasks(DateTime date) {
     return homeController.tasks.any((task) =>
     (task.startDate != null && isSameDay(task.startDate, date)) ||
-        (task.endDate != null && isSameDay(task.endDate, date))
-    );
+        (task.endDate != null && isSameDay(task.endDate, date)));
   }
 
-  /***
-   * Get tasks for the currently selected date
-   * @return List<Task> - Filtered task list
-   */
   List<Task> _getTasksForSelectedDate() {
     if (_selectedDay == null) return homeController.tasks;
-
     return homeController.tasks.where((task) {
       return isSameDay(task.startDate, _selectedDay) ||
           isSameDay(task.endDate, _selectedDay);
@@ -78,6 +75,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
   @override
   void dispose() {
     _refreshController.dispose();
+    _categoryNameController.dispose();
     super.dispose();
   }
 
@@ -90,6 +88,34 @@ class _CalendarScreenState extends State<CalendarScreen> {
         elevation: 0,
         backgroundColor: AppColors.white,
         foregroundColor: Colors.black,
+        actions: [
+          Padding(
+            padding: const EdgeInsets.only(right: 16),
+            child: Container(
+              width: 50,
+              height: 50,
+              decoration: BoxDecoration(
+                color: AppColors.pink.withOpacity(.1),
+                borderRadius: BorderRadius.circular(50),
+              ),
+              child: IconButton(
+                color: AppColors.pink,
+                iconSize: 30,
+                onPressed: () {
+                  showModalBottomSheet(
+                    context: context,
+                    isScrollControlled: true,
+                    shape: const RoundedRectangleBorder(
+                      borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+                    ),
+                    builder: (context) => _addCategory(),
+                  );
+                },
+                icon: const Icon(Icons.add),
+              ),
+            ),
+          ),
+        ],
       ),
       body: LayoutBuilder(
         builder: (context, constraints) {
@@ -132,19 +158,14 @@ class _CalendarScreenState extends State<CalendarScreen> {
     );
   }
 
-  /***
-   * Build the calendar widget
-   * @return Widget - Calendar component
-   */
   Widget _tableCalenderDate() {
     return Card(
       elevation: 0,
       color: AppColors.white,
       child: TableCalendar(
         calendarBuilders: CalendarBuilders(
-          // Customize day of day headers
           dowBuilder: (context, day) {
-            if (day.day == DateTime.sunday) {
+            if (day.weekday == DateTime.sunday) {
               final text = DateFormat.E().format(day);
               return Center(
                 child: Text(
@@ -155,7 +176,6 @@ class _CalendarScreenState extends State<CalendarScreen> {
             }
             return null;
           },
-          // Customize day cells
           defaultBuilder: (context, day, focusedDay) {
             final hasTasks = _hasTasks(day);
             final isSelected = isSameDay(_selectedDay, day);
@@ -173,9 +193,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 color: backgroundColor,
-                border: isSelected
-                    ? Border.all(color: Colors.white, width: 2)
-                    : null,
+                border: isSelected ? Border.all(color: Colors.white, width: 2) : null,
               ),
               child: Center(
                 child: Text(
@@ -231,29 +249,20 @@ class _CalendarScreenState extends State<CalendarScreen> {
     );
   }
 
-  /***
-   * Build the timeline of tasks
-   * @return Widget - Timeline component
-   */
   Widget _buildTimelineTile() {
     final tasksToShow = _getTasksForSelectedDate();
 
-    // Show empty state if no tasks
     if (tasksToShow.isEmpty) {
-      return Center(
+      return const Center(
         child: Padding(
-          padding: const EdgeInsets.all(20),
+          padding: EdgeInsets.all(20),
           child: Text(
-            _selectedDay == null
-                ? "No tasks available"
-                : "No tasks for selected date",
-            style: const TextStyle(color: Colors.grey),
+            "No tasks available",
+            style: TextStyle(color: Colors.grey),
           ),
         ),
       );
     }
-
-
 
     return ListView.builder(
       shrinkWrap: true,
@@ -263,18 +272,16 @@ class _CalendarScreenState extends State<CalendarScreen> {
         final task = tasksToShow[index];
         final categoryColor = Color(Helper.getColorFromHex(task.categories.color));
 
-
-
         return TimelineTile(
           alignment: TimelineAlign.start,
           lineXY: 0.2,
           isFirst: index == 0,
           isLast: index == tasksToShow.length - 1,
-          beforeLineStyle: LineStyle(
+          beforeLineStyle: const LineStyle(
             color: AppColors.brightSkyBlue,
             thickness: 2,
           ),
-          afterLineStyle: LineStyle(
+          afterLineStyle: const LineStyle(
             color: AppColors.brightSkyBlue,
             thickness: 2,
           ),
@@ -284,7 +291,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
             color: AppColors.brightSkyBlue,
             padding: const EdgeInsets.all(4),
             indicator: Container(
-              decoration: BoxDecoration(
+              decoration: const BoxDecoration(
                 color: AppColors.brightSkyBlue,
                 shape: BoxShape.circle,
               ),
@@ -356,5 +363,195 @@ class _CalendarScreenState extends State<CalendarScreen> {
         );
       },
     );
+  }
+
+  Widget _addCategory() {
+    return Material(
+      child: Container(
+        height: MediaQuery.of(context).size.height * 0.9,
+        padding: const EdgeInsets.all(16),
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              "Add Calendar Category",
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+                color: Colors.red,
+              ),
+            ),
+            const SizedBox(height: 16),
+            TextField(
+              controller: _categoryNameController,
+              decoration: const InputDecoration(
+                labelText: 'Category Name',
+                border: OutlineInputBorder(),
+              ),
+            ),
+            const SizedBox(height: 16),
+            _colorUserCanSelect(),
+            const SizedBox(height: 20),
+            Obx(() => CustomButtonWidget(
+              backgroundColor: AppColors.azureBlue,
+              textColor: AppColors.white,
+              buttonText: _categoryController.isLoadingCategories.value
+                  ? "Saving..."
+                  : "Save",
+              onPressed: _categoryController.isLoadingCategories.value
+                  ? null
+                  : () async {
+                if (_categoryNameController.text.trim().isNotEmpty) {
+                  final payload = {
+                    'title': _categoryNameController.text.trim(),
+                    'color': _categoryController.selectedColorHex.value,
+                  };
+                  await _categoryController.storeCategory(payload);
+                  if (!_categoryController.isLoadingCategories.value) {
+                    _categoryNameController.clear();
+                    currentColor.value = Colors.blue; // Reset color
+                    _categoryController.changeSelectedColor(
+                        _categoryController.categoryColor.isNotEmpty
+                            ? _categoryController.categoryColor[0].hex
+                            : '#0000FF');
+                    Navigator.of(context).pop();
+                  }
+                } else {
+                  Get.snackbar('Error', 'Please enter a category name',
+                      backgroundColor: Colors.red,
+                      colorText: Colors.white);
+                }
+              },
+            ).buildButton()),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _colorUserCanSelect() {
+    return Obx(() {
+      final isLoading = _categoryController.isLoadingCategories.value;
+      final colors = _categoryController.categoryColor;
+
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            "Select Color",
+            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 8),
+          if (isLoading)
+            const Text(
+              "Loading colors...",
+              style: TextStyle(color: Colors.grey),
+            )
+          else if (colors.isEmpty)
+            const Text(
+              "No colors available",
+              style: TextStyle(color: Colors.grey),
+            )
+          else
+            Wrap(
+              spacing: 8.0,
+              runSpacing: 8.0,
+              children: List.generate(colors.length, (index) {
+                final color = colors[index];
+                final colorValue =
+                Color(int.parse(color.hex.replaceFirst('#', '0xff')));
+                final isSelected =
+                    _categoryController.selectedColorHex.value == color.hex;
+
+                return GestureDetector(
+                  onTap: () {
+                    changeColor(colorValue);
+                  },
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Container(
+                        width: 50,
+                        height: 50,
+                        decoration: BoxDecoration(
+                          color: colorValue,
+                          shape: BoxShape.circle,
+                          border: Border.all(color: Colors.black26),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        color.name,
+                        style:
+                        const TextStyle(fontSize: 16, color: Colors.black),
+                      ),
+                      if (isSelected)
+                        const Padding(
+                          padding: EdgeInsets.only(left: 4),
+                          child: Icon(
+                            Icons.check,
+                            color: Colors.red,
+                            size: 20,
+                          ),
+                        ),
+                    ],
+                  ),
+                );
+              }),
+            ),
+          const SizedBox(height: 16),
+          GestureDetector(
+            onTap: () {
+              showDialog(
+                context: context,
+                builder: (context) {
+                  return AlertDialog(
+                    backgroundColor: AppColors.white,
+                    title: const Text('Pick a Custom Color'),
+                    content: SingleChildScrollView(
+                      child: ColorPicker(
+                        pickerColor: currentColor.value,
+                        onColorChanged: changeColor,
+                        showLabel: true,
+                        pickerAreaHeightPercent: 0.8,
+                      ),
+                    ),
+                    actions: [
+                      TextButton(
+                        child: const Text('Done'),
+                        onPressed: () => Navigator.of(context).pop(),
+                      ),
+                    ],
+                  );
+                },
+              );
+            },
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  width: 50,
+                  height: 50,
+                  decoration: BoxDecoration(
+                    color: currentColor.value,
+                    shape: BoxShape.circle,
+                    border: Border.all(color: Colors.black26),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                const Text(
+                  'Custom',
+                  style: TextStyle(fontSize: 16, color: Colors.black),
+                ),
+              ],
+            ),
+          ),
+        ],
+      );
+    });
   }
 }
