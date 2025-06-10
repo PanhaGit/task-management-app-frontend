@@ -7,6 +7,7 @@ import 'package:frontend_app_task/screens/auth/date_of_brithday_screen.dart';
 import 'package:frontend_app_task/screens/auth/forget_password_screen.dart';
 import 'package:frontend_app_task/screens/auth/login_screen.dart';
 import 'package:frontend_app_task/screens/auth/signup_screen.dart';
+import 'package:frontend_app_task/screens/auth/verify_code_email.dart';
 import 'package:frontend_app_task/screens/calendar/calendar_screen.dart';
 import 'package:frontend_app_task/screens/get_start/get_start_screen.dart';
 import 'package:frontend_app_task/screens/home/home_screen.dart';
@@ -18,7 +19,7 @@ import 'package:get/get.dart';
 
 class Routes {
   static final GoRouter router = GoRouter(
-    initialLocation: '/splash',
+    initialLocation: '/auth/verify_code',
     debugLogDiagnostics: true,
     routes: [
       GoRoute(
@@ -67,6 +68,14 @@ class Routes {
         pageBuilder: (context, state) => MaterialPage(
           key: state.pageKey,
           child: const DateOfBrithdayScreen(),
+        ),
+      ),
+      GoRoute(
+        path: '/auth/verify_code',
+        name: 'verify_code',
+        pageBuilder: (context, state) => MaterialPage(
+          key: state.pageKey,
+          child: const VerifyCodeEmail(),
         ),
       ),
       StatefulShellRoute.indexedStack(
