@@ -26,11 +26,15 @@ class Assets {
   static const String helperHelper = 'lib/util/helper/helper.dart';
   static const String helperMyDialog = 'lib/util/helper/my_dialog.dart';
   static const String homeHomeScreen = 'lib/screens/home/home_screen.dart';
-  static const String iconAddTask = 'assets/icon/add_task.png';
+  static const String iconAdd = 'assets/icon/add.png';
   static const String iconCalendar = 'assets/icon/calendar.png';
+  static const String iconCalendar (1) = 'assets/icon/calendar (1).png';
   static const String iconHome = 'assets/icon/home.png';
+  static const String iconHome (1) = 'assets/icon/home (1).png';
   static const String iconNotification = 'assets/icon/notification.png';
+  static const String iconNotification (1) = 'assets/icon/notification (1).png';
   static const String iconUser = 'assets/icon/user.png';
+  static const String iconUser (1) = 'assets/icon/user (1).png';
   static const String imagesGetStart = 'assets/images/get_start.png';
   static const String imagesLaypicture = 'assets/images/laypicture.jpg';
   static const String imagesMongkolLogo = 'assets/images/mongkol_logo.png';
@@ -54,5 +58,6 @@ class Assets {
   static const String utilValidaEmail = 'lib/util/valida_email.dart';
   static const String wiegtesCustomeButtonWiegte = 'lib/wiegtes/custome_button_wiegte.dart';
   static const String wiegtesCustomeFormBuilderTextField = 'lib/wiegtes/custome_form_builder_text_field.dart';
+  static const String wiegtesTextButtonCustom = 'lib/wiegtes/TextButtonCustom.dart';
 
 }

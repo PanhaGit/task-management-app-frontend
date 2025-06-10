@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:frontend_app_task/constants/app_colors.dart';
 import 'package:frontend_app_task/util/format_date_helper.dart';
 import 'package:frontend_app_task/util/helper/helper.dart';
+import 'package:frontend_app_task/wiegtes/TextButtonCustom.dart';
 import 'package:get/get.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:frontend_app_task/background_gradient.dart';
@@ -11,10 +12,16 @@ import 'package:frontend_app_task/models/Task.dart';
 import 'package:frontend_app_task/router/app_router.dart';
 
 class HomeScreen extends StatelessWidget {
+  // Controller instances
   final HomeController homeController = Get.find<HomeController>();
   final AuthControllers authController = Get.find<AuthControllers>();
+
+  // Refresh controller for pull-to-refresh functionality
   final RefreshController refreshController = RefreshController();
+
+  // Helper for formatting dates
   final formatDateHelper = FormatDateHelper();
+
   HomeScreen({super.key});
 
   @override
@@ -22,10 +29,10 @@ class HomeScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: AppColors.white,
-        elevation: 0,
-        title: _buildUserGreeting(),
-        actions: [_buildNotificationButton()],
-        iconTheme: const IconThemeData(color: Colors.black),
+        elevation: 0, // No shadow
+        title: _buildUserGreeting(), // Custom greeting widget
+        actions: [_buildNotificationButton()], // Notification icon
+        iconTheme: const IconThemeData(color: Colors.black), // Icon color
       ),
       body: LayoutBuilder(
         builder: (context, constraints) {
@@ -38,7 +45,7 @@ class HomeScreen extends StatelessWidget {
               child: IntrinsicHeight(
                 child: SmartRefresher(
                   controller: refreshController,
-                  onRefresh: _onRefresh,
+                  onRefresh: _onRefresh, // Refresh callback
                   header: const WaterDropHeader(
                     waterDropColor: Colors.blue,
                     complete: Icon(Icons.check, color: Colors.blue),
@@ -48,10 +55,12 @@ class HomeScreen extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        _buildTaskSummary(),
+                        _buildTaskSummary(), // Task progress summary
                         const SizedBox(height: 24),
-                        _buildTaskCards(), // updated method here
-                        const SizedBox(height: 100),
+                        _filterTaskByStatus(), // Filter buttons
+                        const SizedBox(height: 24),
+                        _buildTaskCards(), // List of task cards
+                        const SizedBox(height: 100), // Bottom padding
                       ],
                     ),
                   ),
@@ -64,6 +73,7 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
+  /// Builds the user greeting widget with profile image and name
   Widget _buildUserGreeting() {
     return Obx(() {
       final user = authController.currentUser.value;
@@ -71,6 +81,7 @@ class HomeScreen extends StatelessWidget {
 
       return Row(
         children: [
+          // User profile image
           CircleAvatar(
             radius: 20,
             backgroundColor: Colors.grey[200],
@@ -82,6 +93,7 @@ class HomeScreen extends StatelessWidget {
                 : null,
           ),
           const SizedBox(width: 10),
+          // User name
           Flexible(
             child: Text(
               'Welcome, ${user?.fullName ?? 'Guest'}',
@@ -98,6 +110,7 @@ class HomeScreen extends StatelessWidget {
     });
   }
 
+  /// Builds the notification button in app bar
   Widget _buildNotificationButton() {
     return IconButton(
       icon: const Icon(Icons.notifications_outlined, color: Colors.black),
@@ -105,17 +118,25 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
+  /// Handles pull-to-refresh action
   Future<void> _onRefresh() async {
-    await homeController.getAllTask();
-    refreshController.refreshCompleted();
+    await homeController.getAllTask(); // Refresh task data
+    refreshController.refreshCompleted(); // Complete refresh animation
   }
 
+  /// Builds the task summary card showing progress
   Widget _buildTaskSummary() {
     return Obx(() {
-      final totalTasks = homeController.tasks.length;
-      final completedTasks = homeController.tasks
+      // Get filtered tasks based on current selection
+      final filteredTasks = homeController.filteredTasks;
+      final totalTasks = filteredTasks.length;
+
+      // Count completed tasks
+      final completedTasks = filteredTasks
           .where((task) => task.status.toLowerCase() == "complete")
           .length;
+
+      // Calculate completion percentage
       final percentage =
       totalTasks > 0 ? (completedTasks / totalTasks * 100).round() : 0;
 
@@ -136,15 +157,31 @@ class HomeScreen extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              'My Tasks',
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-                color: Colors.black87,
-              ),
+            // Header with filter status
+            Row(
+              children: [
+                const Text(
+                  'My Tasks',
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black87,
+                  ),
+                ),
+                const Spacer(),
+                Text(
+                  homeController.currentFilter.toUpperCase(),
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.blue,
+                  ),
+                ),
+              ],
             ),
             const SizedBox(height: 16),
+
+            // Progress text and percentage
             Row(
               children: [
                 Text(
@@ -166,6 +203,8 @@ class HomeScreen extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 8),
+
+            // Progress bar
             LinearProgressIndicator(
               value: totalTasks > 0 ? completedTasks / totalTasks : 0,
               backgroundColor: Colors.grey[200],
@@ -179,8 +218,66 @@ class HomeScreen extends StatelessWidget {
     });
   }
 
+  /// Builds the horizontal filter buttons
+  Widget _filterTaskByStatus() {
+    return Obx(() {
+      return SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        child: Row(
+          children: [
+            // All tasks filter button
+            TextButtonCustom(
+              text: 'All',
+              onPressed: () {
+                homeController.setFilter('all');
+              },
+              backgroundColor: homeController.currentFilter == 'all'
+                  ? Colors.blue
+                  : Colors.grey[300]!,
+              textColor: homeController.currentFilter == 'all'
+                  ? Colors.white
+                  : Colors.black,
+            ),
+            const SizedBox(width: 8),
+
+            // Todo tasks filter button
+            TextButtonCustom(
+              text: 'Todo',
+              onPressed: () {
+                homeController.setFilter('todo');
+              },
+              backgroundColor: homeController.currentFilter == 'todo'
+                  ? Colors.blue
+                  : Colors.grey[300]!,
+              textColor: homeController.currentFilter == 'todo'
+                  ? Colors.white
+                  : Colors.black,
+            ),
+            const SizedBox(width: 8),
+
+            // Completed tasks filter button
+            TextButtonCustom(
+              text: 'Completed',
+              onPressed: () {
+                homeController.setFilter('complete');
+              },
+              backgroundColor: homeController.currentFilter == 'complete'
+                  ? Colors.blue
+                  : Colors.grey[300]!,
+              textColor: homeController.currentFilter == 'complete'
+                  ? Colors.white
+                  : Colors.black,
+            ),
+          ],
+        ),
+      );
+    });
+  }
+
+  /// Builds the list of task cards
   Widget _buildTaskCards() {
     return Obx(() {
+      // Show loading indicator while fetching data
       if (homeController.isLoading.value) {
         return const Center(
           child: CircularProgressIndicator(
@@ -189,6 +286,7 @@ class HomeScreen extends StatelessWidget {
         );
       }
 
+      // Show error message if any
       if (homeController.errorMessage.isNotEmpty) {
         return Center(
           child: Text(
@@ -198,25 +296,30 @@ class HomeScreen extends StatelessWidget {
         );
       }
 
-      if (homeController.tasks.isEmpty) {
-        return const Center(
+      // Get tasks based on current filter
+      final tasksToShow = homeController.filteredTasks;
+
+      // Show empty state message
+      if (tasksToShow.isEmpty) {
+        return Center(
           child: Text(
-            "No tasks available",
-            style: TextStyle(color: Colors.grey),
+            homeController.currentFilter == 'all'
+                ? "No tasks available"
+                : "No ${homeController.currentFilter} tasks",
+            style: const TextStyle(color: Colors.grey),
           ),
         );
       }
 
+      // Build list of task cards
       return Column(
-        children:
-        homeController.tasks.map((task) => _buildTaskCard(task)).toList(),
+        children: tasksToShow.map((task) => _buildTaskCard(task)).toList(),
       );
     });
   }
 
+  /// Builds an individual task card
   Widget _buildTaskCard(Task task) {
-
-
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       child: Card(
@@ -230,7 +333,7 @@ class HomeScreen extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Category and Status
+              // Task category and status
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -259,6 +362,8 @@ class HomeScreen extends StatelessWidget {
                 ],
               ),
               const SizedBox(height: 12),
+
+              // Task title
               Text(
                 task.title,
                 style: const TextStyle(
@@ -266,8 +371,12 @@ class HomeScreen extends StatelessWidget {
                   fontWeight: FontWeight.w600,
                 ),
               ),
+
+              // Task duration
               Text("Time: ${formatDateHelper.formatTimeTask(task.endDate)} Hours"),
               const SizedBox(height: 8),
+
+              // Task dates
               Row(
                 children: [
                   _buildDateChip(
@@ -288,7 +397,7 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
-
+  /// Builds a date chip with icon and text
   Widget _buildDateChip({required IconData icon, required String label}) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
@@ -310,6 +419,7 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
+  /// Formats date as dd/mm/yyyy
   String _formatDate(DateTime date) {
     return '${date.day}/${date.month}/${date.year}';
   }
