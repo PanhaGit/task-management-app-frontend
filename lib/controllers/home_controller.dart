@@ -9,22 +9,35 @@ class HomeController extends GetxController {
   final RxString errorMessage = ''.obs;
   final RxList<Task> tasks = <Task>[].obs;
   final Rx<Task> selectedTask = Rx(Task.empty());
+  final RxString _currentFilter = 'all'.obs;
+
+  String get currentFilter => _currentFilter.value;
+
+  List<Task> get filteredTasks {
+    if (_currentFilter.value == 'all') {
+      return tasks;
+    } else {
+      return tasks.where((task) =>
+      task.status.toLowerCase() == _currentFilter.value.toLowerCase()
+      ).toList();
+    }
+  }
 
   @override
   void onInit() {
     super.onInit();
     getAllTask();
   }
-  /// Fetch all tasks from the API
+
   Future<void> getAllTask() async {
     isLoading.value = true;
     errorMessage.value = '';
     try {
       final response = await _apiService.fetchData<Map<String, dynamic>>(
-        endpoint: '/task',
-        headers: {
-          "Authorization" :"Bearer"
-        }
+          endpoint: '/task',
+          headers: {
+            "Authorization" :"Bearer"
+          }
       );
       if (response.data != null && response.data!['success'] == true) {
         final List<dynamic> jsonTasks = response.data!['data'];
@@ -40,5 +53,9 @@ class HomeController extends GetxController {
     } finally {
       isLoading.value = false;
     }
+  }
+
+  void setFilter(String status) {
+    _currentFilter.value = status.toLowerCase();
   }
 }
