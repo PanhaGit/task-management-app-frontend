@@ -1,12 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
-import 'package:flutter_colorpicker/flutter_colorpicker.dart';
-import 'package:frontend_app_task/models/Categories.dart';
+import 'package:frontend_app_task/constants/app_colors.dart';
 import 'package:get/get.dart';
 import 'package:frontend_app_task/background_gradient.dart';
 import 'package:frontend_app_task/controllers/task_controller.dart';
-import 'package:frontend_app_task/constants/app_colors.dart';
 
 class AddTaskScreen extends StatefulWidget {
   const AddTaskScreen({Key? key}) : super(key: key);
@@ -61,12 +59,37 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
 
         final success = await _taskController.createTask(payload);
         if (success && mounted) {
+          // Reset form and explicitly set fields to empty/default
           _formKey.currentState?.reset();
+          _formKey.currentState?.patchValue({
+            'title': '',
+            'description': '',
+            'start_date': DateTime.now(),
+            'end_date': DateTime.now().add(const Duration(hours: 1)),
+            'category_id': null,
+          });
+
+          // Show success feedback
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Task created successfully!'),
+              backgroundColor: Colors.green,
+              duration: Duration(seconds: 2),
+            ),
+          );
+
+          // Delay navigation to allow UI to update
+          await Future.delayed(const Duration(milliseconds: 500));
           Get.back(result: true);
         }
       } catch (e) {
         print(e);
-        // Handle error (show snackbar or other UI feedback)
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error: ${e.toString()}'),
+            backgroundColor: Colors.redAccent,
+          ),
+        );
       }
     }
   }
@@ -74,50 +97,70 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.transparent,
       appBar: AppBar(
-        backgroundColor: AppColors.white,
-        title: const Center(
-          child: Text(
-            "Create New Task",
-            style: TextStyle(fontWeight: FontWeight.w500),
+        backgroundColor: Colors.white,
+        elevation: 0,
+        title: const Text(
+          "Create New Task",
+          style: TextStyle(
+            fontWeight: FontWeight.w600,
+            fontSize: 20,
+            color: Colors.black87,
           ),
         ),
+        centerTitle: true,
       ),
-      body: LayoutBuilder(
-        builder: (context, constraints) {
-          return BackgroundGradient(
-            child: ConstrainedBox(
+      body: BackgroundGradient(
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            return ConstrainedBox(
               constraints: BoxConstraints(
                 minWidth: constraints.maxWidth,
                 minHeight: constraints.maxHeight,
               ),
               child: IntrinsicHeight(
                 child: SingleChildScrollView(
-                  padding: const EdgeInsets.all(16.0),
+                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
                   child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
                       _addTaskForm(),
                       const SizedBox(height: 24),
                       Obx(() {
-                        return ElevatedButton.icon(
-                          onPressed: _taskController.isLoading.value
-                              ? null
-                              : _handleSubmit,
-                          icon: _taskController.isLoading.value
-                              ? const SizedBox(
-                            height: 20,
-                            width: 20,
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2,
-                              color: Colors.white,
+                        return AnimatedContainer(
+                          duration: const Duration(milliseconds: 300),
+                          child: ElevatedButton.icon(
+                            onPressed: _taskController.isLoading.value
+                                ? null
+                                : _handleSubmit,
+                            icon: _taskController.isLoading.value
+                                ? const SizedBox(
+                              height: 20,
+                              width: 20,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                color: Colors.white,
+                              ),
+                            )
+                                : const Icon(Icons.check, size: 20 , color: AppColors.white,),
+                            label: Text(
+                              _taskController.isLoading.value
+                                  ? "Save..."
+                                  : "Save Task",
+                              style: const TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w600,
+                              ),
                             ),
-                          )
-                              : const Icon(Icons.check),
-                          label: const Text("Submit Task"),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: AppColors.brightSkyBlue,
-                            elevation: 0,
-                            minimumSize: const Size(double.infinity, 50),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: AppColors.brightSkyBlue,
+                              foregroundColor: Colors.white,
+                              padding: const EdgeInsets.symmetric(vertical: 16),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                            ),
                           ),
                         );
                       }),
@@ -125,9 +168,9 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                   ),
                 ),
               ),
-            ),
-          );
-        },
+            );
+          },
+        ),
       ),
     );
   }
@@ -135,88 +178,188 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
   Widget _addTaskForm() {
     return Obx(() {
       if (_taskController.isLoadingCategories.value) {
-        return const Center(child: CircularProgressIndicator());
+        return const Center(
+          child: CircularProgressIndicator(color: Color(0xFF4A90E2)),
+        );
       }
 
       if (_taskController.categories.isEmpty) {
-        return const Text("No categories available");
+        return const Card(
+          child: Padding(
+            padding: EdgeInsets.all(16),
+            child: Text(
+              "No categories available",
+              style: TextStyle(fontSize: 16, color: Colors.black54),
+            ),
+          ),
+        );
       }
 
-      return FormBuilder(
-        key: _formKey,
-        child: Column(
-          children: [
-            FormBuilderTextField(
-              name: 'title',
-              decoration: const InputDecoration(
-                labelText: 'Title',
-                border: OutlineInputBorder(),
-                helperText: 'Enter the task title',
-              ),
-              validator: FormBuilderValidators.compose([
-                FormBuilderValidators.required(),
-                FormBuilderValidators.maxLength(100),
-              ]),
+      return Card(
+        // color: AppColors.skyBlue,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        child: Padding(
+          padding: const EdgeInsets.all(20),
+          child: FormBuilder(
+            key: _formKey,
+            child: Column(
+              children: [
+                _buildTextField(
+                  name: 'title',
+                  label: 'Task Title',
+                  hint: 'Enter the task title',
+
+                  icon: Icons.title,
+                ),
+                const SizedBox(height: 20),
+                _buildTextField(
+                  name: 'description',
+                  label: 'Description',
+                  hint: 'Enter the task description',
+                  maxLines: 3,
+                  icon: Icons.description,
+                ),
+                const SizedBox(height: 20),
+                _buildDateTimePicker(
+                  name: 'start_date',
+                  label: 'Start Date & Time',
+                  hint: 'Pick the start date and time',
+                  initialValue: DateTime.now(),
+                  icon: Icons.event,
+                ),
+                const SizedBox(height: 20),
+                _buildDateTimePicker(
+                  name: 'end_date',
+                  label: 'End Date & Time',
+                  hint: 'Pick the end date and time',
+                  initialValue: DateTime.now().add(const Duration(hours: 1)),
+                  icon: Icons.event_busy,
+                ),
+                const SizedBox(height: 20),
+                _buildDropdown(
+                  name: 'category_id',
+                  label: 'Category',
+                  hint: 'Select a category',
+                  items: _taskController.categories
+                      .map((cat) => DropdownMenuItem(
+                    value: cat.id,
+                    child: Text(cat.title),
+                  ))
+                      .toList(),
+                  icon: Icons.category,
+                ),
+              ],
             ),
-            const SizedBox(height: 16),
-            FormBuilderTextField(
-              name: 'description',
-              maxLines: 3,
-              decoration: const InputDecoration(
-                labelText: 'Description',
-                border: OutlineInputBorder(),
-                helperText: 'Enter the task description',
-              ),
-              validator: FormBuilderValidators.compose([
-                FormBuilderValidators.required(),
-                FormBuilderValidators.maxLength(500),
-              ]),
-            ),
-            const SizedBox(height: 16),
-            FormBuilderDateTimePicker(
-              name: 'start_date',
-              decoration: const InputDecoration(
-                labelText: 'Start Date',
-                border: OutlineInputBorder(),
-                helperText: 'Pick the date and time the task starts',
-              ),
-              inputType: InputType.both,
-              validator: FormBuilderValidators.required(),
-              initialValue: DateTime.now(),
-            ),
-            const SizedBox(height: 16),
-            FormBuilderDateTimePicker(
-              name: 'end_date',
-              decoration: const InputDecoration(
-                labelText: 'End Date',
-                border: OutlineInputBorder(),
-                helperText: 'Pick the date and time the task ends',
-              ),
-              inputType: InputType.both,
-              validator: FormBuilderValidators.required(),
-              initialValue: DateTime.now().add(const Duration(hours: 1)),
-            ),
-            const SizedBox(height: 16),
-            // 👇 Add this dropdown for category selection
-            FormBuilderDropdown(
-              name: 'category_id',
-              decoration: const InputDecoration(
-                labelText: 'Category',
-                border: OutlineInputBorder(),
-                helperText: 'Select a category for the task',
-              ),
-              validator: FormBuilderValidators.required(),
-              items: _taskController.categories
-                  .map((cat) => DropdownMenuItem(
-                value: cat.id,
-                child: Text(cat.title),
-              ))
-                  .toList(),
-            ),
-            const SizedBox(height: 16),
-          ],
+          ),
         ),
       );
     });
+  }
+
+  Widget _buildTextField({
+    required String name,
+    required String label,
+    required String hint,
+    int maxLines = 1,
+    List<String? Function(String?)>? validator,
+    required IconData icon,
+  }) {
+    return FormBuilderTextField(
+      name: name,
+      maxLines: maxLines,
+      decoration: InputDecoration(
+        labelText: label,
+        hintText: hint,
+        prefixIcon: Icon(icon, color: const Color(0xFF4A90E2)),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(color: Colors.grey.shade300),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(color: Colors.grey.shade300),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: const BorderSide(color: Color(0xFF4A90E2), width: 2),
+        ),
+        filled: true,
+        fillColor: Colors.white,
+        labelStyle: const TextStyle(color: Colors.black87),
+        hintStyle: const TextStyle(color: Colors.grey),
+      ),
+      validator: validator != null ? FormBuilderValidators.compose(validator) : null,
+    );
+  }
+
+  Widget _buildDateTimePicker({
+    required String name,
+    required String label,
+    required String hint,
+    required DateTime initialValue,
+    required IconData icon,
+  }) {
+    return FormBuilderDateTimePicker(
+      name: name,
+      decoration: InputDecoration(
+        labelText: label,
+        hintText: hint,
+        prefixIcon: Icon(icon, color: const Color(0xFF4A90E2)),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(color: Colors.grey.shade300),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(color: Colors.grey.shade300),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: const BorderSide(color: Color(0xFF4A90E2), width: 2),
+        ),
+        filled: true,
+        fillColor: Colors.white,
+        labelStyle: const TextStyle(color: Colors.black87),
+        hintStyle: const TextStyle(color: Colors.grey),
+      ),
+      inputType: InputType.both,
+      validator: FormBuilderValidators.required(),
+      initialValue: initialValue,
+    );
+  }
+
+  Widget _buildDropdown({
+    required String name,
+    required String label,
+    required String hint,
+    required List<DropdownMenuItem> items,
+    required IconData icon,
+  }) {
+    return FormBuilderDropdown(
+      name: name,
+      decoration: InputDecoration(
+        labelText: label,
+        hintText: hint,
+        prefixIcon: Icon(icon, color: const Color(0xFF4A90E2)),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(color: Colors.grey.shade300),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(color: Colors.grey.shade300),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: const BorderSide(color: Color(0xFF4A90E2), width: 2),
+        ),
+        filled: true,
+        fillColor: Colors.white,
+        labelStyle: const TextStyle(color: Colors.black87),
+        hintStyle: const TextStyle(color: Colors.grey),
+      ),
+      validator: FormBuilderValidators.required(),
+      items: items,
+    );
   }
 }
