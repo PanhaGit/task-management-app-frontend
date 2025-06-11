@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:frontend_app_task/controllers/auth/verify_code_email_controller.dart';
 import 'package:frontend_app_task/controllers/category_controller.dart';
 import 'package:frontend_app_task/services/firebase_notification/notification_services.dart';
 import 'package:get/get.dart';
@@ -53,6 +54,7 @@ void _initializeControllers() {
   Get.put(HomeController());
   Get.put(TaskController());
   Get.put(CategoryController());
+  Get.put(VerifyCodeEmailController());
 }
 
 class MongKolApp extends StatelessWidget {

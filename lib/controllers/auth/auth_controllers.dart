@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:frontend_app_task/util/helper/my_dialog.dart';
 import 'package:get/get.dart';
 import 'package:go_router/go_router.dart';
 import 'package:frontend_app_task/models/auth/auth.dart';
@@ -38,7 +39,7 @@ class AuthControllers extends GetxController {
     }
   }
 
-  Future<void> signUp(SignUpRequest request, BuildContext context) async {
+  Future<AuthResponse?> signUp(SignUpRequest request, BuildContext context) async {
     try {
       isLoading.value = true;
       errorMessage.value = '';
@@ -65,10 +66,11 @@ class AuthControllers extends GetxController {
       await _storeAuthData(authResponse);
       await registerFcmToken(authResponse.user!.id, authResponse.accessToken);
 
-      context.go('/'); // Navigate to home
+      return authResponse;
     } catch (e) {
       errorMessage.value = e.toString();
       Get.snackbar('Error', errorMessage.value, snackPosition: SnackPosition.BOTTOM);
+      return null;
     } finally {
       isLoading.value = false;
     }

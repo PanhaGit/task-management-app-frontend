@@ -1,8 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:frontend_app_task/controllers/auth/verify_code_email_controller.dart';
 import 'package:pinput/pinput.dart';
+import 'package:get/get.dart';
 
-class VerifyCodeEmail extends StatelessWidget {
-  const VerifyCodeEmail({super.key});
+class VerifyCodeEmailScreen extends StatelessWidget {
+  final String email;
+  final VerifyCodeEmailController controller = Get.put(VerifyCodeEmailController());
+  final TextEditingController pinController = TextEditingController();
+
+  VerifyCodeEmailScreen({super.key, required this.email});
 
   @override
   Widget build(BuildContext context) {
@@ -75,7 +81,7 @@ class VerifyCodeEmail extends StatelessWidget {
                 ),
                 children: [
                   TextSpan(
-                    text: 'thopanha123@gmail.com',
+                    text: email,
                     style: const TextStyle(
                       color: Color(0xFF3D5CFF),
                       fontWeight: FontWeight.w600,
@@ -88,39 +94,39 @@ class VerifyCodeEmail extends StatelessWidget {
             Center(
               child: Pinput(
                 length: 6,
+                controller: pinController,
                 defaultPinTheme: defaultPinTheme,
                 focusedPinTheme: focusedPinTheme,
-                // separatorBuilder: ,
                 showCursor: true,
                 keyboardType: TextInputType.number,
                 onCompleted: (pin) {
-                  debugPrint('Entered PIN: $pin');
+                  controller.verifyCodeEmail(context, pin);
                 },
               ),
             ),
             const SizedBox(height: 24),
-            Align(
+            Obx(() => Align(
               alignment: Alignment.center,
-              child: TweenAnimationBuilder(
-                tween: Tween(begin: 30.0, end: 0.0),
-                duration: const Duration(seconds: 30),
-                builder: (context, value, child) {
-                  return Text(
-                    'Resend code in ${value.toInt()}s',
-                    style: TextStyle(
-                      color: const Color(0xFF757575),
-                      fontSize: 14,
-                    ),
-                  );
-                },
+              child: Text(
+                'Resend code in ${controller.resendTimer.value}s',
+                style: const TextStyle(
+                  color: Color(0xFF757575),
+                  fontSize: 14,
+                ),
               ),
-            ),
+            )),
             const SizedBox(height: 40),
-            SizedBox(
+            Obx(() => SizedBox(
               width: double.infinity,
               height: 56,
               child: ElevatedButton(
-                onPressed: () {},
+                onPressed: controller.isLoading.value
+                    ? null
+                    : () {
+                  if (pinController.text.length == 6) {
+                    controller.verifyCodeEmail(context, pinController.text);
+                  }
+                },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFF3D5CFF),
                   shape: RoundedRectangleBorder(
@@ -129,7 +135,11 @@ class VerifyCodeEmail extends StatelessWidget {
                   elevation: 0,
                   shadowColor: const Color(0xFF3D5CFF).withOpacity(0.3),
                 ),
-                child: const Text(
+                child: controller.isLoading.value
+                    ? const CircularProgressIndicator(
+                  color: Colors.white,
+                )
+                    : const Text(
                   'Verify',
                   style: TextStyle(
                     color: Colors.white,
@@ -138,19 +148,24 @@ class VerifyCodeEmail extends StatelessWidget {
                   ),
                 ),
               ),
-            ),
+            )),
             const SizedBox(height: 24),
             Center(
               child: TextButton(
-                onPressed: () {},
-                child: RichText(
-                  text: TextSpan(
+                onPressed: controller.resendTimer.value == 0
+                    ? () {
+                  controller.startResendTimer();
+                  // Add resend OTP logic here
+                }
+                    : null,
+                child: const Text.rich(
+                  TextSpan(
                     text: "Didn't receive a code? ",
-                    style: const TextStyle(
+                    style: TextStyle(
                       color: Color(0xFF757575),
                       fontSize: 14,
                     ),
-                    children: const [
+                    children: [
                       TextSpan(
                         text: 'Resend',
                         style: TextStyle(

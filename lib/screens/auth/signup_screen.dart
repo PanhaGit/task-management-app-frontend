@@ -34,26 +34,29 @@ class _SignupScreenState extends State<SignupScreen> {
         throw Exception('Could not get device token');
       }
       try {
-        await _authController.signUp(
+        final response = await _authController.signUp(
           SignUpRequest(
-            firstName: formData['first_name'],
-            lastName: formData['last_name'],
-            email: formData['email'],
-            password: formData['password'],
-            phoneNumber: formData['phone_number'],
-            fcmToken: fcmToken
+              firstName: formData['first_name'],
+              lastName: formData['last_name'],
+              email: formData['email'],
+              password: formData['password'],
+              phoneNumber: formData['phone_number'],
+              fcmToken: fcmToken
           ),
           context,
         );
-        if (_authController.currentUser.value != null) {
-         context.pushToHome();
+
+        if (response != null) {
+          final userEmail = formData['email'] as String;
+          if (context.mounted) {
+            context.goNamed(
+              'verify_code',
+              extra: userEmail,
+            );
+          }
         }
       } catch (e) {
-        // Get.snackbar(
-        //   'Error',
-        //   e.toString(),
-        //   snackPosition: SnackPosition.BOTTOM,
-        // );
+        print(e);
       }
     }
   }
