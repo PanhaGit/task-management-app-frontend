@@ -242,7 +242,7 @@ class _SignupScreenState extends State<SignupScreen> {
                           padding: const EdgeInsets.only(bottom: 50),
                           alignment: Alignment.center,
                           child: GestureDetector(
-                            onTap: () => Get.offAllNamed('/login'),
+                            onTap: () =>context.pushToLogin(),
                             child: RichText(
                               text: TextSpan(
                                 text: "Already have an account? ",
@@ -251,7 +251,7 @@ class _SignupScreenState extends State<SignupScreen> {
                                   fontSize: 16,
                                   fontWeight: FontWeight.w600,
                                 ),
-                                children: const [
+                                children:  [
                                   TextSpan(
                                     text: "Sign in",
                                     style: TextStyle(

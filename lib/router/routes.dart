@@ -20,7 +20,6 @@ import 'package:get/get.dart';
 class Routes {
   static final GoRouter router = GoRouter(
     initialLocation: '/splash',
-    // initialLocation: '/auth/verify_code',
     debugLogDiagnostics: true,
     routes: [
       GoRoute(
@@ -82,7 +81,6 @@ class Routes {
           );
         },
       ),
-
       StatefulShellRoute.indexedStack(
         pageBuilder: (context, state, navigationShell) {
           return MaterialPage(
@@ -134,7 +132,7 @@ class Routes {
                 name: 'notification',
                 pageBuilder: (context, state) => MaterialPage(
                   key: state.pageKey,
-                  child:  NotificationScreen(),
+                  child: NotificationScreen(),
                 ),
               ),
             ],
@@ -154,10 +152,6 @@ class Routes {
         ],
       ),
     ],
-    /// Handles redirection logic for all routes.
-    /// Redirects users based on authentication status and whether they've seen the Get Start screen.
-    ///
-    /// @author: Tho Panha
     redirect: (BuildContext context, GoRouterState state) async {
       final authController = Get.find<AuthControllers>();
       const storage = FlutterSecureStorage();
@@ -166,28 +160,25 @@ class Routes {
       final isAuthRoute = currentUri.startsWith('/auth');
       final isInitialRoute = currentUri == '/splash' || currentUri == '/get_start';
       final isVerifyCodeRoute = currentUri.startsWith('/auth/verify_code');
-      final hasSeenGetStart = await storage.read(key: 'has_seen_get_start') != null;
 
       // Always allow verify_code route
       if (isVerifyCodeRoute) return null;
 
-      if (currentUri == '/splash') {
-        if (isLoggedIn) return '/';
-        if (!hasSeenGetStart) return '/get_start';
-        return '/auth/login';
-      }
+      // Allow splash screen to handle its own navigation
+      if (currentUri == '/splash') return null;
 
+      // Redirect to login if not logged in and trying to access protected routes
       if (!isLoggedIn && !isAuthRoute && !isInitialRoute) {
         return '/auth/login';
       }
 
+      // Redirect to home if logged in and trying to access auth or initial routes
       if (isLoggedIn && (isAuthRoute || isInitialRoute)) {
         return '/';
       }
 
       return null;
     },
-
     errorPageBuilder: (context, state) => MaterialPage(
       key: state.pageKey,
       child: Scaffold(

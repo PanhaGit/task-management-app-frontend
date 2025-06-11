@@ -1,8 +1,11 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:frontend_app_task/controllers/auth/auth_controllers.dart';
 import 'package:frontend_app_task/env.dart';
 import 'package:go_router/go_router.dart';
 import 'package:package_info_plus/package_info_plus.dart';
+import 'package:get/get.dart';
 import '../constants/app_colors.dart';
 import '../constants/app_style.dart';
 
@@ -31,10 +34,21 @@ class _SplashScreenState extends State<SplashScreen> {
     });
   }
 
-  void _startSplashTimer() {
+  Future<void> _startSplashTimer() async {
+    const storage = FlutterSecureStorage();
+    final authController = Get.find<AuthControllers>();
+    final isLoggedIn = authController.currentUser.value != null;
+    final hasSeenGetStart = await storage.read(key: 'has_seen_get_start') != null;
+
     _timer = Timer(const Duration(seconds: 2), () {
       if (mounted) {
-        context.go('/');
+        if (isLoggedIn) {
+          context.go('/'); // Navigate to home for logged-in users
+        } else if (!hasSeenGetStart) {
+          context.go('/get_start'); // Navigate to get_start for new users
+        } else {
+          context.go('/auth/login'); // Navigate to login for non-logged-in users who have seen get_start
+        }
       }
     });
   }
