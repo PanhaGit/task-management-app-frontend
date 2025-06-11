@@ -10,6 +10,7 @@
     <uses-permission android:name="android.permission.USE_EXACT_ALARM" />
 
     <application
+            android:enableOnBackInvokedCallback="true"
             android:label="MongKol Task App"
             android:icon="@mipmap/mongkol_logo"
             android:roundIcon="@mipmap/mongkol_logo"

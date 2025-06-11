@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:frontend_app_task/router/app_router.dart';
 import 'package:frontend_app_task/util/helper/my_dialog.dart';
 import 'package:get/get.dart';
 import 'package:go_router/go_router.dart';
@@ -160,6 +161,34 @@ class AuthControllers extends GetxController {
     } catch (e) {
       debugPrint('Error storing auth data: $e');
       throw Exception('Failed to store auth data: $e');
+    }
+  }
+
+  Future<void> deleteAccount(
+      String email, String password, String confirmPassword) async {
+    try {
+      isLoading.value = true;
+      final userId = currentUser.value!.id;
+      final response = await _apiService.fetchData(
+        method: "DELETE",
+        endpoint: '/auth/delete/$userId',
+        data: {
+          'email': email,
+          'password': password,
+          'confirm_password': confirmPassword,
+        },
+      );
+
+      if (response.statusCode == 200) {
+        await storage.deleteAll();
+        currentUser.value = null;
+      } else {
+        throw response.data['message'] ?? 'Failed to delete account';
+      }
+    } catch (e) {
+      rethrow;
+    } finally {
+      isLoading.value = false;
     }
   }
 }

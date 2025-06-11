@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_form_builder/flutter_form_builder.dart';
+import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:frontend_app_task/background_gradient.dart';
 import 'package:frontend_app_task/constants/app_colors.dart';
 import 'package:frontend_app_task/controllers/auth/auth_controllers.dart';
@@ -8,8 +10,10 @@ import 'package:get/get.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 
 class ProfileScreen extends StatelessWidget {
-   ProfileScreen({super.key});
+  ProfileScreen({super.key});
   final AuthControllers authController = Get.find<AuthControllers>();
+  final _formKey = GlobalKey<FormBuilderState>();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -51,8 +55,7 @@ class ProfileScreen extends StatelessWidget {
                             child: Align(
                               alignment: Alignment.topRight,
                               child: IconButton(
-                                icon: const Icon(Icons.camera_alt,
-                                    color: Colors.white),
+                                icon: const Icon(Icons.camera_alt, color: Colors.white),
                                 onPressed: () => _changeCoverImage(context),
                               ),
                             ),
@@ -66,8 +69,7 @@ class ProfileScreen extends StatelessWidget {
                                 height: 100,
                                 decoration: BoxDecoration(
                                   shape: BoxShape.circle,
-                                  border: Border.all(
-                                      color: Colors.white, width: 4),
+                                  border: Border.all(color: Colors.white, width: 4),
                                   color: Colors.grey[200],
                                   image: const DecorationImage(
                                     image: CachedNetworkImageProvider(
@@ -80,8 +82,7 @@ class ProfileScreen extends StatelessWidget {
                                   child: CircleAvatar(
                                     radius: 14,
                                     backgroundColor: Colors.blue,
-                                    child: Icon(Icons.camera_alt,
-                                        size: 16, color: Colors.white),
+                                    child: Icon(Icons.camera_alt, size: 16, color: Colors.white),
                                   ),
                                 ),
                               ),
@@ -121,7 +122,21 @@ class ProfileScreen extends StatelessWidget {
                           buttonText: "Log out",
                           onPressed: () {
                             authController.logout(context);
-                          }
+                          },
+                        ).buildButton(),
+                      ),
+                      const SizedBox(height: 10),
+                      // Delete Account Button
+                      SizedBox(
+                        width: double.infinity,
+                        height: 45,
+                        child: CustomButtonWidget(
+                          backgroundColor: Colors.red,
+                          textColor: AppColors.white,
+                          buttonText: "Delete Account",
+                          onPressed: () {
+                            _showDeleteAccountModal(context);
+                          },
                         ).buildButton(),
                       ),
                       SizedBox(height: MediaQuery.of(context).padding.bottom),
@@ -133,6 +148,138 @@ class ProfileScreen extends StatelessWidget {
           );
         },
       ),
+    );
+  }
+
+  void _showDeleteAccountModal(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Delete Account'),
+          content: SingleChildScrollView(
+            child: FormBuilder(
+              key: _formKey,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Text(
+                    'Please provide your email and password to delete your account.',
+                    style: TextStyle(fontSize: 16),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 16),
+                  FormBuilderTextField(
+                    name: 'email',
+                    decoration: const InputDecoration(
+                      labelText: 'Email',
+                      border: OutlineInputBorder(),
+                    ),
+                    keyboardType: TextInputType.emailAddress,
+                    validator: FormBuilderValidators.compose([
+                      FormBuilderValidators.required(errorText: 'Email is required'),
+                      FormBuilderValidators.email(errorText: 'Enter a valid email'),
+                    ]),
+                  ),
+                  const SizedBox(height: 16),
+                  FormBuilderTextField(
+                    name: 'password',
+                    decoration: const InputDecoration(
+                      labelText: 'Password',
+                      border: OutlineInputBorder(),
+                    ),
+                    obscureText: true,
+                    validator: FormBuilderValidators.compose([
+                      FormBuilderValidators.required(errorText: 'Password is required'),
+                      FormBuilderValidators.minLength(6, errorText: 'Password must be at least 6 characters'),
+                    ]),
+                  ),
+                  const SizedBox(height: 16),
+                  FormBuilderTextField(
+                    name: 'confirmPassword',
+                    decoration: const InputDecoration(
+                      labelText: 'Confirm Password',
+                      border: OutlineInputBorder(),
+                    ),
+                    obscureText: true,
+                    validator: FormBuilderValidators.compose([
+                      FormBuilderValidators.required(errorText: 'Confirm password is required'),
+                      FormBuilderValidators.minLength(6, errorText: 'Password must be at least 6 characters'),
+                          (val) {
+                        if (val != _formKey.currentState?.fields['password']?.value) {
+                          return 'Passwords do not match';
+                        }
+                        return null;
+                      },
+                    ]),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // Close the dialog
+              },
+              child: const Text('Cancel'),
+            ),
+            Obx(() => ElevatedButton(
+              onPressed: authController.isLoading.value
+                  ? null // Disable button while loading
+                  : () async {
+                if (_formKey.currentState!.saveAndValidate()) {
+                  final formData = _formKey.currentState!.value;
+                  final email = formData['email'];
+                  final password = formData['password'];
+                  final confirmPassword = formData['confirmPassword'];
+
+                  try {
+                    await authController.deleteAccount(
+                      email,
+                      password,
+                      confirmPassword,
+                    );
+                    Navigator.of(context).pop(); // Close the dialog
+                    Get.snackbar(
+                      'Success',
+                      'Account deleted successfully',
+                      snackPosition: SnackPosition.BOTTOM,
+                      backgroundColor: Colors.green,
+                      colorText: Colors.white,
+                      duration: const Duration(seconds: 3),
+                    );
+                    // Navigate to login screen
+                    context.goToLogin(); // Ensure this method exists in AppRouter
+                  } catch (e) {
+                    Get.snackbar(
+                      'Error',
+                      e.toString(),
+                      snackPosition: SnackPosition.BOTTOM,
+                      backgroundColor: Colors.red,
+                      colorText: Colors.white,
+                      duration: const Duration(seconds: 3),
+                    );
+                  }
+                }
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.red,
+              ),
+              child: authController.isLoading.value
+                  ? const SizedBox(
+                width: 20,
+                height: 20,
+                child: CircularProgressIndicator(
+                  color: Colors.white,
+                  strokeWidth: 2,
+                ),
+              )
+                  : const Text('Delete Account'),
+            )),
+          ],
+        );
+      },
     );
   }
 
