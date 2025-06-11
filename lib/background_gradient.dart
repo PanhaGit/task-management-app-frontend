@@ -1,5 +1,7 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import './constants/app_colors.dart';
+
 class BackgroundGradient extends StatelessWidget {
   final Widget child;
 
@@ -14,11 +16,17 @@ class BackgroundGradient extends StatelessWidget {
           end: Alignment.bottomCenter,
           colors: [
             AppColors.white,
-            AppColors.lightBlue
+            AppColors.lightBlue,
           ],
         ),
       ),
-      child: child,
+      child: BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 5.0, sigmaY: 5.0), // Adjust blur intensity
+        child: Container(
+          color: Colors.transparent, // Ensures the blur is visible
+          child: child,
+        ),
+      ),
     );
   }
 }
