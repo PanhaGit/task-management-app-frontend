@@ -7,7 +7,7 @@ import 'package:frontend_app_task/screens/auth/date_of_brithday_screen.dart';
 import 'package:frontend_app_task/screens/auth/forget_password_screen.dart';
 import 'package:frontend_app_task/screens/auth/login_screen.dart';
 import 'package:frontend_app_task/screens/auth/signup_screen.dart';
-import 'package:frontend_app_task/screens/auth/verify_code_email.dart';
+import 'package:frontend_app_task/screens/auth/verify_code_email_screen.dart';
 import 'package:frontend_app_task/screens/calendar/calendar_screen.dart';
 import 'package:frontend_app_task/screens/get_start/get_start_screen.dart';
 import 'package:frontend_app_task/screens/home/home_screen.dart';
@@ -19,7 +19,8 @@ import 'package:get/get.dart';
 
 class Routes {
   static final GoRouter router = GoRouter(
-    initialLocation: '/auth/verify_code',
+    initialLocation: '/splash',
+    // initialLocation: '/auth/verify_code',
     debugLogDiagnostics: true,
     routes: [
       GoRoute(
@@ -73,11 +74,15 @@ class Routes {
       GoRoute(
         path: '/auth/verify_code',
         name: 'verify_code',
-        pageBuilder: (context, state) => MaterialPage(
-          key: state.pageKey,
-          child: const VerifyCodeEmail(),
-        ),
+        pageBuilder: (context, state) {
+          final email = state.extra as String;
+          return MaterialPage(
+            key: state.pageKey,
+            child: VerifyCodeEmailScreen(email: email),
+          );
+        },
       ),
+
       StatefulShellRoute.indexedStack(
         pageBuilder: (context, state, navigationShell) {
           return MaterialPage(
@@ -154,45 +159,32 @@ class Routes {
     ///
     /// @author: Tho Panha
     redirect: (BuildContext context, GoRouterState state) async {
-      // Get authentication controller instance from GetX
       final authController = Get.find<AuthControllers>();
-
-      // Use FlutterSecureStorage to check persistent flags (e.g. if user saw get_start)
       const storage = FlutterSecureStorage();
-
-      // Get the current route path
       final currentUri = state.uri.toString();
-
-      // Check if user is logged in (non-null current user means logged in)
       final isLoggedIn = authController.currentUser.value != null;
-
-      // Check if user is on an auth route (login/signup/forgot, etc.)
       final isAuthRoute = currentUri.startsWith('/auth');
-
-      // Check if user is on splash or get_start page
       final isInitialRoute = currentUri == '/splash' || currentUri == '/get_start';
-
-      // Check if user has already seen the Get Start screen
+      final isVerifyCodeRoute = currentUri.startsWith('/auth/verify_code');
       final hasSeenGetStart = await storage.read(key: 'has_seen_get_start') != null;
 
-      // Redirection logic for splash screen
+      // Always allow verify_code route
+      if (isVerifyCodeRoute) return null;
+
       if (currentUri == '/splash') {
-        if (isLoggedIn) return '/';                // Logged in → go to home
-        if (!hasSeenGetStart) return '/get_start'; // First time → show get start
-        return '/auth/login';                      // Otherwise → go to login
+        if (isLoggedIn) return '/';
+        if (!hasSeenGetStart) return '/get_start';
+        return '/auth/login';
       }
 
-      // If user is NOT logged in and tries to access any protected route
       if (!isLoggedIn && !isAuthRoute && !isInitialRoute) {
-        return '/auth/login';                      // Redirect to login
+        return '/auth/login';
       }
 
-      // If user is already logged in but tries to access auth or splash routes
       if (isLoggedIn && (isAuthRoute || isInitialRoute)) {
-        return '/';                                // Redirect to home
+        return '/';
       }
 
-      // No redirection needed; allow navigation to requested route
       return null;
     },
 
