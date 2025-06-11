@@ -39,14 +39,14 @@ class VerifyCodeEmailController extends GetxController {
         },
       );
 
-      final data = jsonDecode(response.data);
+      final data = response.data as Map<String, dynamic>;
       MyDialog.success(context, data['message']);
 
       if (context.mounted) {
         context.go('/');
       }
     } catch (error) {
-      print("Error : ${error}");
+      // print("Error : $error");
       MyDialog.error(context, "Something went wrong. Please try again.");
     } finally {
       isLoading.value = false;
