@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:frontend_app_task/constants/app_colors.dart';
 import 'package:frontend_app_task/util/format_date_helper.dart';
-import 'package:frontend_app_task/util/helper/helper.dart';
 import 'package:frontend_app_task/wiegtes/TextButtonCustom.dart';
 import 'package:get/get.dart';
+import 'package:go_router/go_router.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:frontend_app_task/background_gradient.dart';
 import 'package:frontend_app_task/controllers/auth/auth_controllers.dart';
@@ -59,7 +59,7 @@ class HomeScreen extends StatelessWidget {
                         const SizedBox(height: 24),
                         _filterTaskByStatus(), // Filter buttons
                         const SizedBox(height: 24),
-                        _buildTaskCards(), // List of task cards
+                        _buildTaskCards(context), // List of task cards
                         const SizedBox(height: 100), // Bottom padding
                       ],
                     ),
@@ -275,7 +275,7 @@ class HomeScreen extends StatelessWidget {
   }
 
   /// Builds the list of task cards
-  Widget _buildTaskCards() {
+  Widget _buildTaskCards(BuildContext context) {
     return Obx(() {
       // Show loading indicator while fetching data
       if (homeController.isLoading.value) {
@@ -313,84 +313,90 @@ class HomeScreen extends StatelessWidget {
 
       // Build list of task cards
       return Column(
-        children: tasksToShow.map((task) => _buildTaskCard(task)).toList(),
+        children: tasksToShow.map((task) => _buildTaskCard(context, task)).toList(),
       );
     });
   }
 
   /// Builds an individual task card
-  Widget _buildTaskCard(Task task) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      child: Card(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
-        elevation: 0,
-        color: AppColors.white,
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Task category and status
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    task.categories.title,
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                    decoration: BoxDecoration(
-                      color: AppColors.brightSkyBlue.withOpacity(0.1),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Text(
-                      task.status.toUpperCase(),
+  Widget _buildTaskCard(BuildContext context, Task task) {
+    return InkWell(
+      onTap: () {
+        context.goNamed('task_detail', pathParameters: {'id': task.id});
+      },
+      borderRadius: BorderRadius.circular(12), // Added for ripple effect
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 12),
+        child: Card(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          elevation: 0,
+          color: AppColors.white,
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Task category and status
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      task.categories.title,
                       style: const TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w500,
-                        color: Colors.blue,
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
                       ),
                     ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 12),
-
-              // Task title
-              Text(
-                task.title,
-                style: const TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: AppColors.brightSkyBlue.withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Text(
+                        task.status.toUpperCase(),
+                        style: const TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w500,
+                          color: Colors.blue,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
-              ),
+                const SizedBox(height: 12),
 
-              // Task duration
-              Text("Time: ${formatDateHelper.formatTimeTask(task.endDate)} Hours"),
-              const SizedBox(height: 8),
+                // Task title
+                Text(
+                  task.title,
+                  style: const TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
 
-              // Task dates
-              Row(
-                children: [
-                  _buildDateChip(
-                    icon: Icons.calendar_today_outlined,
-                    label: 'Start: ${_formatDate(task.startDate)}',
-                  ),
-                  const SizedBox(width: 8),
-                  _buildDateChip(
-                    icon: Icons.event_available_outlined,
-                    label: 'End: ${_formatDate(task.endDate)}',
-                  ),
-                ],
-              ),
-            ],
+                // Task duration
+                Text("Time: ${formatDateHelper.formatTimeTask(task.endDate)} Hours"),
+                const SizedBox(height: 8),
+
+                // Task dates
+                Row(
+                  children: [
+                    _buildDateChip(
+                      icon: Icons.calendar_today_outlined,
+                      label: 'Start: ${_formatDate(task.startDate)}',
+                    ),
+                    const SizedBox(width: 8),
+                    _buildDateChip(
+                      icon: Icons.event_available_outlined,
+                      label: 'End: ${_formatDate(task.endDate)}',
+                    ),
+                  ],
+                ),
+              ],
+            ),
           ),
         ),
       ),

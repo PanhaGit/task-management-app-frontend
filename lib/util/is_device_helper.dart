@@ -9,7 +9,11 @@ class IsDeviceHelper {
   }) {
     return IconButton(
       icon: Platform.isIOS ? iconIos : iconAndroid,
-      onPressed: onPressed,
+      onPressed: () {
+        // print('Back button pressed'); // Debug log
+        onPressed();
+      },
+      color: Colors.white, // Ensure icon color is applied
     );
   }
 }
