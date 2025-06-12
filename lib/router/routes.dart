@@ -11,6 +11,7 @@ import 'package:frontend_app_task/screens/auth/verify_code_email_screen.dart';
 import 'package:frontend_app_task/screens/calendar/calendar_screen.dart';
 import 'package:frontend_app_task/screens/get_start/get_start_screen.dart';
 import 'package:frontend_app_task/screens/home/home_screen.dart';
+import 'package:frontend_app_task/screens/notification/notification_detail_screen.dart';
 import 'package:frontend_app_task/screens/notification/notification_screen.dart';
 import 'package:frontend_app_task/screens/profile/profile_screen.dart';
 import 'package:frontend_app_task/screens/splash_screen.dart';
@@ -81,6 +82,19 @@ class Routes {
           );
         },
       ),
+
+      GoRoute(
+        path: '/notification/detail',
+        name: 'notification_detail',
+        pageBuilder: (context, state) {
+          final notifyId = state.extra as String;
+          return MaterialPage(
+            key: state.pageKey,
+            child: NotificationDetailScreen(notifyId: notifyId),
+          );
+        },
+      ),
+
       StatefulShellRoute.indexedStack(
         pageBuilder: (context, state, navigationShell) {
           return MaterialPage(

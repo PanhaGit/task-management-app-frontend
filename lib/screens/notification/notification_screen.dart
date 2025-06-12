@@ -3,6 +3,7 @@ import 'package:frontend_app_task/constants/app_colors.dart';
 import 'package:get/get.dart';
 import 'package:frontend_app_task/controllers/notification_controller.dart';
 import 'package:frontend_app_task/services/firebase_notification/notification_services.dart';
+import 'package:go_router/go_router.dart';
 import 'package:timeago/timeago.dart' as timeago;
 
 class NotificationScreen extends StatefulWidget {
@@ -152,9 +153,12 @@ class _NotificationScreenState extends State<NotificationScreen> {
                     _notificationController.markAsRead(
                         specificNotification: notification);
                     if (notification.data.containsKey('task_id')) {
-                      Get.toNamed('/task_details',
-                          arguments: {'task_id': notification.data['task_id']});
+                      context.pushNamed(
+                        'notification_detail',
+                        extra: notification.id,
+                      );
                     }
+
                   },
                   child: Padding(
                     padding: const EdgeInsets.all(16),
