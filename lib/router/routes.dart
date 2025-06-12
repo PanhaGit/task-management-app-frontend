@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:frontend_app_task/components/task_view_detail_screen.dart';
 import 'package:frontend_app_task/controllers/auth/auth_controllers.dart';
 import 'package:frontend_app_task/main_screen.dart';
 import 'package:frontend_app_task/screens/add_task/add_task_screen.dart';
@@ -91,6 +92,18 @@ class Routes {
           return MaterialPage(
             key: state.pageKey,
             child: NotificationDetailScreen(notifyId: notifyId),
+          );
+        },
+      ),
+
+      GoRoute(
+        path: '/task/detail/:id', // Dynamic path with :id parameter
+        name: 'task_detail',
+        pageBuilder: (context, state) {
+          final id = state.pathParameters['id'] as String; // Extract ID from path parameters
+          return MaterialPage(
+            key: state.pageKey,
+            child: TaskViewDetailScreen(id: id),
           );
         },
       ),

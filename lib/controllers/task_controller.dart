@@ -1,6 +1,8 @@
+import 'package:flutter/cupertino.dart';
 import 'package:frontend_app_task/models/Task.dart';
 import 'package:frontend_app_task/services/api/api_service.dart';
 import 'package:frontend_app_task/services/firebase_notification/notification_services.dart';
+import 'package:frontend_app_task/util/helper/my_dialog.dart';
 import 'package:get/get.dart';
 import '../models/Categories.dart';
 
@@ -48,7 +50,6 @@ class TaskController extends GetxController {
       isLoading.value = true;
       errorMessage.value = '';
 
-      // Remove notification_time from payload since API doesn't accept it
       final response = await _apiService.fetchData<Map<String, dynamic>>(
         method: "POST",
         endpoint: "/task",
@@ -59,11 +60,9 @@ class TaskController extends GetxController {
           response.data!["success"] == true &&
           (response.statusCode == 201 || response.statusCode == 200)) {
 
-        // Calculate notification time (15 minutes before end time)
         final endTime = DateTime.parse(payload['end_date']);
         final notificationTime = endTime.subtract(const Duration(minutes: 15));
 
-        // Schedule local notification separately
         await _notificationServices.scheduleTaskNotification(
           id: response.data!['data']['_id'].hashCode,
           title: 'Task Reminder: ${payload['title']}',
@@ -78,6 +77,23 @@ class TaskController extends GetxController {
     } catch (err) {
       errorMessage.value = err.toString();
       return false;
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
+  Future<Task> getOneTask(String id) async {
+    try {
+      isLoading.value = true;
+      final response = await _apiService.fetchData(endpoint: "/task/$id");
+
+      if (response.data['success'] == true && response.data['data'] != null) {
+        return Task.fromJson(response.data['data']);
+      } else {
+        throw Exception(response.data?['message'] ?? 'Task not found');
+      }
+    } catch (error) {
+      throw Exception('Failed to fetch task: $error');
     } finally {
       isLoading.value = false;
     }
